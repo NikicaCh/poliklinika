@@ -1,0 +1,170 @@
+import React, { useState } from 'react'
+import Chip from '@material-ui/core/Chip';
+import AddToQueueIcon from '@material-ui/icons/AddToQueue';
+import deepPurple from '@material-ui/core/colors/deepPurple'
+
+import TestModal from './TestModal'
+import Generals from './Generals'
+import Paper from '@material-ui/core/Paper';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import StateNav from './StateNav';
+import CompanySettings from './CompanySettings'
+
+
+
+const newColor = deepPurple[300]
+
+
+
+const style={
+    employee: {
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        background: "#E3E9EE",
+    },
+    top: {
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        background: "#F2F8F8",
+        color: "#424242",
+        textAlign: "center",
+        zIndex: "2"
+    },
+    generals: {
+        position: "absolute",
+        top: "25%",
+        left: "2%",
+        height: "auto",
+        minHeight: "20vh",
+        minWidth: "22vw",
+        maxWidth: "27vw",
+        background: "white",
+        borderRadius: "10px",
+        paddingTop: "0 1% 1% 1%",
+        zIndex: "2",
+    },
+    main: {
+        position: "absolute",
+        top: "25%",
+        left: "30%",
+        height: "66vh",
+        minWidth: "58vw",
+        background: "white",
+        borderRadius: "10px",
+        boxShadow: "0 1px 1px 0 rgba(60,64,67,.3), 0 1px 1px 1px rgba(60,64,67,.15)",
+        zIndex: "2",
+        // overflowY: "scroll",
+        overflowX: "hidden",
+    },
+    topText: {
+        fontSize: "1.4vw",
+        position: "relative",
+        top: "5%",
+        margin: "auto"
+    },name: {
+        fontSize: "2.2vw",
+        position: "relative",
+        top: "5%",
+        margin: "auto"
+    },
+    chipRow: {
+        position: "relative",
+        width: "40%",
+        height: "auto",
+        top: "8%",
+        margin: "auto"
+    },
+    chip: {
+        fontFamily: "Comfortaa",
+        fontSize: ".8vw",
+        cursor: "pointer",
+        marginRight: "5%",
+        background: newColor,
+        color: "white",
+        padding: "2.7% 1%"
+    },
+}
+
+
+export default function Employee(props) {
+
+    const [testModal, setTestModal] = useState(false)
+    const [print, setPrint] = useState(false)
+    const [switchState, setSwitchState] = useState("employees")
+    const navs = ["Времеплов", "Подесувања"]
+
+    const setTest = () => {
+        setTestModal(false)
+    }
+
+    const printSet = () => {
+        setPrint(!print)
+    }
+
+    const returnTestModal = () => {
+        setTestModal(!testModal)
+    }
+
+    const newTest = () => {
+        setTestModal(true)
+    }
+
+    const setSwitch = (value) => {
+        setSwitchState(value)
+    }
+    return( 
+        <div style={style.employee}>
+            <div style={style.top}>
+                <h1 style={style.name}>{"Никица Максимовски"}</h1>
+                {/* <h1 style={style.topText}>{this.props.item.address.charAt(0).toUpperCase() + this.props.item.address.slice(1)}</h1> */}
+                <div style={style.chipRow}>
+                    <Chip icon={<AddToQueueIcon />} label={"Нов преглед"} style={style.chip} onClick={(e) => { e.preventDefault(); newTest()}}/>
+                </div>
+                <TestModal 
+                        render={testModal}
+                        db={props.db}
+                        setModal={setTest}
+                        setAlert={props.setAlert}
+                        setAlertMessage={props.setAlertMessage}
+                        numberOfEmployees={1} //in this case it's 1
+                        setNumber={() => {}} //empty due to only 1 employee in this case
+                        setPrint={printSet}
+                        returnTestModal={returnTestModal}
+                        selectedEmployees={[]}
+                    />
+            </div>
+            <div style={style.generals}>
+                    <Paper>
+                    <Tabs
+                        value={0}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        variant="fullWidth"
+                        >>
+                        <Tab label="Генералии" />
+                    </Tabs>
+                    </Paper>
+                    <Generals item={"A"} description={"Име"}/>
+                    <Generals item={"a"} description={"Презиме"}/>
+                    <Generals item={"B"} description={"Адреса"}/>
+                    <Generals item={"b"} description={"Година на раѓање"}/>
+                    <Generals item={"b"} description={"Фирма"}/>
+                    <Generals item={"b"} description={"Позиција"}/>
+                </div>
+                <div style={style.main}>
+                   <StateNav setSwitch={setSwitch} navs={navs}/>
+                    {
+                        (switchState === "settings")
+                        ? <CompanySettings
+                            item={this.props.item}
+                            setAlert={this.props.setAlert}
+                            setAlertMessage={this.props.setAlertMessage} />
+                        : undefined
+                    }
+               </div>
+        </div>
+    )
+}
