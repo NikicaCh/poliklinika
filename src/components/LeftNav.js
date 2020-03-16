@@ -25,6 +25,19 @@ const style = {
         maxWidth: "95%",
         marginTop: "20%",
         borderRadius: "20px"
+    }, 
+    recent: {
+        position: "relative",
+        width: "90%",
+        height: "40%",
+        maxWidth: "95%",
+        marginTop: "30%",
+        marginLeft: "10%",
+        background: "white",
+        borderRadius: "10px",
+        paddingTop: "0 1% 1% 1%",
+        zIndex: "2",
+        boxShadow: "0 1px 1px 0 rgba(60,64,67,.3), 0 1px 1px 1px rgba(60,64,67,.15)",
     }
 }
 
@@ -39,6 +52,7 @@ export default function LeftNav(props) {
     return (
         <div style={style.nav}>
             <Button variant="contained" style={style.button} onClick={() => {setRender(true)}}><AddIcon /> Нова Фирма</Button>
+            <div style={style.recent}></div>
             <AddCompanyModal render={render} setModal={handleClose}/>
         </div>
     )   

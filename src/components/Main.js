@@ -34,7 +34,9 @@ export default function Main(props) {
                 item={item}
                 db={props.db}
                 setAlert={props.setAlert}
-                setAlertMessage={props.setAlertMessage} />
+                setAlertMessage={props.setAlertMessage} 
+                setRender={props.setRender}
+                setEmployee={props.setEmployee}/>
             : undefined
             }
             {
@@ -47,7 +49,11 @@ export default function Main(props) {
                 ? <Employee 
                     db={props.db}
                     setAlert={props.setAlert}
-                    setAlertMessage={props.setAlertMessage}/>
+                    setAlertMessage={props.setAlertMessage}
+                    setRender={props.setRender}
+                    setEmployee={props.setEmployee}
+                    item={props.employee}
+                    companyName={item.name}/>
                 : undefined
             } 
         </div>

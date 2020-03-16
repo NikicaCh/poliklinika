@@ -27,7 +27,8 @@ class Home extends React.Component {
             render: "main",
             alert: "",
             alertMessage: "",
-            companiesData: []
+            companiesData: [],
+            employee: {}
         }
         this.handleSearchClick = this.handleSearchClick.bind(this)
         this.closeAlert = this.closeAlert.bind(this)
@@ -35,17 +36,35 @@ class Home extends React.Component {
         this.handleClick = this.handleClick.bind(this)
         this.setAlert = this.setAlert.bind(this)
         this.setAlertMessage = this.setAlertMessage.bind(this)
+        this.setRender = this.setRender.bind(this)
+        this.setEmployee = this.setEmployee.bind(this)
+        this.pushToHistoryObject = this.pushToHistoryObject.bind(this)
     }
 
     componentDidMount () {
+        window.history.replaceState(this.state, null, "");
         Axios.post("https://poliklinika-server.herokuapp.com/getCompanies", {pass: "hello"})
         .then(() => {
             Axios.get("https://poliklinika-server.herokuapp.com/getData")
             .then(data => this.setState({companiesData: data.data}))
         })
+
+        window.onpopstate = function (event) {
+            if (event.state) { 
+              let state = event.state; 
+            }
+            // render(state); // See example render function in summary below
+            if(event.state !== undefined) {
+                this.setState({render: event.state.render})
+                console.log(event.state)
+            }
+          }.bind(this);
     }
 
 
+    pushToHistoryObject = () => {
+        window.history.pushState(this.state, null, "")
+    }
     
     
     handleSearchClick = (item) => {
@@ -54,6 +73,7 @@ class Home extends React.Component {
         .then((doc) => {
             if(doc.exists) {
                 this.setState({company: doc.data(), render: "company"})
+                this.pushToHistoryObject()
             }
         })
         // setCompany(item)
@@ -100,19 +120,30 @@ class Home extends React.Component {
         this.setState({alertMessage: value})
     }
 
+    setRender = (value, employee) => {
+        this.setState({render: value}, () => {
+            this.pushToHistoryObject()
+        })
+    }
+    setEmployee = (employee) => {
+        this.setState({employee})
+    }
     render() {
         return (
             <div style={style.home}>
-                <button onClick={this.handleClick}>CLICK HERE</button>
+                {/* <button onClick={this.handleClick}>CLICK HERE</button> */}
                 <AlertSnack alert={this.state.alert} alertMessage={this.state.alertMessage} closeAlert={this.closeAlert} setAlert={this.setAlert}/>
-                <Navbar db={this.props.db} setCompany={this.handleSearchClick} home={this.home} companiesData={this.state.companiesData}/>
+                <Navbar db={this.props.db} setCompany={this.handleSearchClick} home={this.home} companiesData={this.state.companiesData} setRender={this.setRender}/>
                 <LeftNav/>
                 <Main
                     db={this.props.db}
                     render={this.state.render}
                     item={this.state.company}
                     setAlert={this.setAlert}
-                    setAlertMessage={this.setAlertMessage} />
+                    setAlertMessage={this.setAlertMessage} 
+                    setRender={this.setRender}
+                    setEmployee={this.setEmployee}
+                    employee={this.state.employee}/>
             </div>
         )
     }

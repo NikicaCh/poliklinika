@@ -43,7 +43,9 @@ export default function Employees(props) {
       {props.items.map((emp, key) => {
         const labelId = `checkbox-list-secondary-label-${key}`;
         return (
-          <ListItem key={key} button>
+          <ListItem key={key} button onClick={() => {
+            props.setRender("employee"); 
+            props.setEmployee(emp)}}>
             <ListItemAvatar>
               <Avatar
                 // alt={`Avatar n°${value + 1}`}

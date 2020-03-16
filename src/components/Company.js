@@ -166,17 +166,19 @@ class Company extends Component  {
     }
     componentWillReceiveProps() {
         this.setState({employees: []}, () => {
-            if(this.props.item.id) { // SNAPSHOT that listens for changes in THIS company
-                this.props.db.collection("companies").doc(this.props.item.id).onSnapshot((snap) => {
-                    if(snap.exists) {
-                        this.setState({employees: []}, () => {
-                            snap.data().employees.map((emp, key) => {
-                                getEmployee(this.props.db, emp, this.callback)
-                            })
-                        })
-                    }
-                })
-            }
+            this.emps()
+            // if(this.props.item.id) { // SNAPSHOT that listens for changes in THIS company
+            //     this.props.db.collection("companies").doc(this.props.item.id).onSnapshot((snap) => {
+            //         if(snap.exists) {
+            //             this.setState({employees: []}, () => {
+            //                 snap.data().employees.map((emp, key) => {
+            //                     getEmployee(this.props.db, emp, this.callback)
+            //                 })
+            //             })
+                        
+            //         }
+            //     })
+            // }
         })
     }
    
@@ -209,18 +211,18 @@ class Company extends Component  {
     
     componentDidMount() {
         this.emps()
-        if(this.props.item.id) { // SNAPSHOT that listens for changes in THIS company
-            this.props.db.collection("companies").doc(this.props.item.id).onSnapshot((snap) => {
-                if(snap.exists) {
-                    this.setState({employees: []}, () => {
-                        snap.data().employees.map((emp, key) => {
-                            getEmployee(this.props.db, emp, this.callback)
-                        })
-                    })
+        // if(this.props.item.id) { // SNAPSHOT that listens for changes in THIS company
+        //     this.props.db.collection("companies").doc(this.props.item.id).onSnapshot((snap) => {
+        //         if(snap.exists) {
+        //             this.setState({employees: []}, () => {
+        //                 snap.data().employees.map((emp, key) => {
+        //                     getEmployee(this.props.db, emp, this.callback)
+        //                 })
+        //             })
                     
-                }
-            })
-        }
+        //         }
+        //     })
+        // }
 
     }
     // const employeeCallback = (data) =>{
@@ -292,7 +294,7 @@ class Company extends Component  {
                    <StateNav setSwitch={this.setSwitch} navs={this.state.navs}/>
                     {
                         (this.state.switchState === "employees") 
-                        ? <Employees items={this.state.employees} count={this.countSelected} selectEmployee={this.selectEmployee}/> 
+                        ? <Employees items={this.state.employees} count={this.countSelected} selectEmployee={this.selectEmployee} setRender={this.props.setRender} setEmployee={this.props.setEmployee}/> 
                         : undefined
                     }
                     {

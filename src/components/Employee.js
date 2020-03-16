@@ -118,7 +118,7 @@ export default function Employee(props) {
     return( 
         <div style={style.employee}>
             <div style={style.top}>
-                <h1 style={style.name}>{"Никица Максимовски"}</h1>
+                <h1 style={style.name}>{`${props.item.name} ${props.item.lastName}`}</h1>
                 {/* <h1 style={style.topText}>{this.props.item.address.charAt(0).toUpperCase() + this.props.item.address.slice(1)}</h1> */}
                 <div style={style.chipRow}>
                     <Chip icon={<AddToQueueIcon />} label={"Нов преглед"} style={style.chip} onClick={(e) => { e.preventDefault(); newTest()}}/>
@@ -147,12 +147,12 @@ export default function Employee(props) {
                         <Tab label="Генералии" />
                     </Tabs>
                     </Paper>
-                    <Generals item={"A"} description={"Име"}/>
-                    <Generals item={"a"} description={"Презиме"}/>
-                    <Generals item={"B"} description={"Адреса"}/>
-                    <Generals item={"b"} description={"Година на раѓање"}/>
-                    <Generals item={"b"} description={"Фирма"}/>
-                    <Generals item={"b"} description={"Позиција"}/>
+                    <Generals item={props.item.name} description={"Име"}/>
+                    <Generals item={props.item.lastName} description={"Презиме"}/>
+                    <Generals item={props.item.address} description={"Адреса"}/>
+                    <Generals item={props.item.age} description={"Година на раѓање"}/>
+                    <Generals item={props.companyName} description={"Фирма"}/>
+                    <Generals item={props.item.position} description={"Позиција"}/>
                 </div>
                 <div style={style.main}>
                    <StateNav setSwitch={setSwitch} navs={navs}/>

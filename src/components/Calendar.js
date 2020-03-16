@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Button from '@material-ui/core/Button';
 import EventIcon from '@material-ui/icons/Event';
-import green from '@material-ui/core/colors/green';
+import blue from '@material-ui/core/colors/blue';
 import deepPurple from '@material-ui/core/colors/deepPurple'
 
 import Paper from '@material-ui/core/Paper';
@@ -9,7 +9,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
 
-const newColor = green[400];
+const newColor = blue[400];
 const newColor2 = deepPurple[300]
 const newColor3 = deepPurple[200]
 
@@ -57,7 +57,8 @@ const style={
         color: "white",
         position: "relative",
         margin: "1% 0 0 5%",
-        borderRadius: "20px"
+        borderRadius: "20px",
+        padding: "2%"
     },
     calendarButton: {
         position: "relative",
@@ -84,7 +85,7 @@ export default function Calendar(props) {
                 <Button style={style.calendarButton2}>Месец</Button>
             </div>
             <div style={style.left}>
-                <Button style={style.button}><EventIcon /> Закажи преглед</Button>
+                <Button style={style.button}>Закажи преглед</Button>
             </div>
         </div>
     )
