@@ -21,6 +21,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const style = {
+    div: {
+        marginTop: "8%"
+    },
     button: {
         background: newColor,
         color: "white",
@@ -38,7 +41,7 @@ export default function CompanySettings(props) {
 
     }
     return (
-        <div>
+        <div style={style.div}>
             <form className={classes.root} noValidate autoComplete="off">
                 <TextField id="name" label="Име" variant="outlined" value={props.item.name}/>
                 <TextField id="address" label="Адреса" variant="outlined" value={props.item.address}/>

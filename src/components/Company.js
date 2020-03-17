@@ -101,7 +101,10 @@ const style = {
         color: "white",
         padding: "2.7% 1%"
     },
-    
+    stateNav: {
+        position: "fixed",
+        top: "0"
+    }
 }
 
 const item = {
@@ -291,7 +294,7 @@ class Company extends Component  {
                 </div>
                 <SlideUp fadeIn={this.state.fadeIn} count={this.state.selected}/>
                <div style={style.main}>
-                   <StateNav setSwitch={this.setSwitch} navs={this.state.navs}/>
+                   <StateNav style={style.stateNav} setSwitch={this.setSwitch} navs={this.state.navs}/>
                     {
                         (this.state.switchState === "employees") 
                         ? <Employees items={this.state.employees} count={this.countSelected} selectEmployee={this.selectEmployee} setRender={this.props.setRender} setEmployee={this.props.setEmployee}/> 
