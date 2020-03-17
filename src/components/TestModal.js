@@ -66,7 +66,7 @@ export default function TestModal(props) {
             setOpen)
     }
 
-    const sendData = () => {
+    const sendData = (value) => {
         let data = props.selectedEmployees[counter];
         let body = {
             name: data.name,
@@ -75,7 +75,7 @@ export default function TestModal(props) {
             education: data.education,
             position: data.position
         }
-        Axios.post("https://poliklinika-server.herokuapp.com/create-pdf", {body})
+        Axios.post(`https://poliklinika-server.herokuapp.com/create-${value}-pdf`, {body})
             .then(() => Axios.get("https://poliklinika-server.herokuapp.com/fetch-pdf", {responseType: "blob"})) //WE CALL THEN SINCE WE HAVE PROMISE.RESOLVE() in server.
             .then((res) => {
                 const pdfBlob = new Blob([res.data], {type: "application/pdf"})
@@ -328,12 +328,12 @@ export default function TestModal(props) {
                     <DialogActions>
                     <Button onClick={() => {
                             // props.setPrint()
-                            sendData()
+                            sendData("employee")
                     }} color="primary" startIcon={<PrintIcon />}>
                                 Печати експертиза
                     </Button>
                     <Button onClick={() => {
-                            props.setPrint()
+                            sendData("company")
                     }} color="primary" startIcon={<PrintIcon />}>
                                 Печати извештај за работодавачот
                     </Button>

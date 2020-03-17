@@ -13,6 +13,7 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     maxWidth: 1100,
     backgroundColor: theme.palette.background.paper,
+    marginTop: "5%"
   },
 }));
 
