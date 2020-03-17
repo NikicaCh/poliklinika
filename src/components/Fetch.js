@@ -99,3 +99,15 @@ export const createTest = (db, data, setAlert, setAlertMessage, setOpen) => {
 }
 
 
+export const addTestArrangement = (db, id,  data) => {
+    let docRef = db.collection("testArrangements").doc(id)
+    docRef.get().then((doc) => {
+        if(doc.exists) {
+            return
+        } else {
+            db.collection('testArrangements').doc(id).set(data);
+        }
+    })
+
+}
+

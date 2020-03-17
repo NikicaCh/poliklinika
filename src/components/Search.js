@@ -53,7 +53,7 @@ export default function Search(props) {
     
 
     return (
-        <div style={style}>
+        <div style={props.style || style}>
         <Autocomplete
             id="free-solo-demo"
             freeSolo
@@ -64,7 +64,7 @@ export default function Search(props) {
             renderInput={params => (
                 <TextField
                     {...params}
-                    label="search"
+                    label={props.title || "search"}
                     margin="normal"
                     variant="outlined"
                     onChange={(e) => {handleSearch(e)}}

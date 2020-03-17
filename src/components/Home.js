@@ -143,7 +143,8 @@ class Home extends React.Component {
                     setAlertMessage={this.setAlertMessage} 
                     setRender={this.setRender}
                     setEmployee={this.setEmployee}
-                    employee={this.state.employee}/>
+                    employee={this.state.employee}
+                    companiesData={this.state.companiesData}/>
             </div>
         )
     }

@@ -41,7 +41,7 @@ export default function Main(props) {
             }
             {
                 props.render === "main"
-                ? <Calendar />
+                ? <Calendar companiesData={props.companiesData} db={props.db}/>
                 : undefined
             }
             {

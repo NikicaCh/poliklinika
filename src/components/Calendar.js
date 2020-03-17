@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import TestArrangement from './TestArrangement'
 import Button from '@material-ui/core/Button';
 import EventIcon from '@material-ui/icons/Event';
 import blue from '@material-ui/core/colors/blue';
@@ -73,19 +74,34 @@ const style={
         color: "white",
         borderRadius: "20px",
         marginRight: "1%"
+    },
+    component: {
+        width: "90%"
     }
 }
 
 export default function Calendar(props) {
+
+    const [modal, setModal] = useState(false)
+    
+    const handleClose = () => {
+        setModal(false)
+    }
+
+    const openModal = () => {
+        setModal(true)
+    }
+
     return (
         <div style={style.calendar}>
             <div style={style.main}>
                 <Button style={style.calendarButton}>Ден</Button>
                 <Button style={style.calendarButton2}>Недела</Button>
                 <Button style={style.calendarButton2}>Месец</Button>
+                <TestArrangement  db={props.db} render={modal} handleClose={handleClose} companiesData={props.companiesData}/>  
             </div>
             <div style={style.left}>
-                <Button style={style.button}>Закажи преглед</Button>
+                <Button style={style.button} onClick={openModal}>Закажи преглед</Button>
             </div>
         </div>
     )
