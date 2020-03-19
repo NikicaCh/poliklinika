@@ -11,7 +11,7 @@ import Axios from 'axios'
 let dev = "http://localhost:5000"
 let prod = "https://poliklinika-server.herokuapp.com"
 
-let env = prod;
+let env = dev;
 
 
 const style= {
@@ -52,7 +52,7 @@ class Home extends React.Component {
 
     
     getCompaniesRequest = () => {
-        Axios.post(`${env}/getCompanies", {pass: "hello"}`)
+        Axios.post(`${env}/getCompanies`, {pass: "hello"})
         .then(() => {
             Axios.get(`${env}/getData`)
             .then(data => this.setState({companiesData: data.data}))
