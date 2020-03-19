@@ -3,6 +3,7 @@ import Button from '@material-ui/core/Button';
 import deepPurple from '@material-ui/core/colors/deepPurple'
 import AddIcon from '@material-ui/icons/Add';
 import AddCompanyModal from './AddCompanyModal'
+import Recent from './Recent'
 
 const newColor = deepPurple[300];
 
@@ -35,7 +36,7 @@ const style = {
         marginLeft: "10%",
         background: "white",
         borderRadius: "10px",
-        paddingTop: "0 1% 1% 1%",
+        padding: "5% 1% 1% 1%",
         zIndex: "2",
         boxShadow: "0 1px 1px 0 rgba(60,64,67,.3), 0 1px 1px 1px rgba(60,64,67,.15)",
     }
@@ -49,11 +50,21 @@ export default function LeftNav(props) {
     const handleClose= () => {
         setRender(false)
     }
+
+    const handleSubmit = (data) => {
+        props.addDataToCompaniesJson(data)
+    }
     return (
         <div style={style.nav}>
             <Button variant="contained" style={style.button} onClick={() => {setRender(true)}}><AddIcon /> Нова Фирма</Button>
-            <div style={style.recent}></div>
-            <AddCompanyModal render={render} setModal={handleClose}/>
+            <div style={style.recent}>
+                {
+                    props.recent.map((company) => {
+                        return <Recent name={company.name} setCompany={props.setCompany} id={company.id}/>
+                    })
+                }
+            </div>
+            <AddCompanyModal render={render} setModal={handleClose} handleSubmit={handleSubmit} setAlert={props.setAlert} setAlertMessage={props.setAlertMessage} db={props.db}/>
         </div>
     )   
 }

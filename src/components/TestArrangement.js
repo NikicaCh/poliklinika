@@ -23,6 +23,7 @@ export default function TestArrangement(props) {
 
     const [results, setResults] = useState([])
     const [companyId, setId] = useState()
+    const [companyName, setCompanyName] = useState("")
     const [randomId, setRandomId] = useState(randomstring.generate(32))
 
     const searchCompany = (value) => {
@@ -41,8 +42,9 @@ export default function TestArrangement(props) {
 
         // queryCompaniesByName(props.db, value, setCompanies);
     }
-    const setCompanies = (company) => {
+    const setCompanies = (company, title) => {
         setId(company)
+        setCompanyName(title)
     }
 
     const style = {
@@ -68,7 +70,7 @@ export default function TestArrangement(props) {
           textAlign: 'center',
           color: theme.palette.text.secondary,
           width: "20%",
-          marginLeft: "9.3%"
+          marginLeft: "9.3%",
         },
       }));
     
@@ -77,12 +79,15 @@ export default function TestArrangement(props) {
       const save = () => {
         let data = {
             companyId: companyId,
+            companyName: companyName,
             numberOfEmployees: document.getElementById("number").value,
             date: document.getElementById("date").value,
             start: document.getElementById("time-start").value,
             end: document.getElementById("time-end").value,
         }
-        addTestArrangement(props.db, randomId, data)
+        addTestArrangement(props.db, randomId, data, props.setAlert, props.setAlertMessage)
+        props.handleClose()
+        props.getArrangemetns()
     }
 
     return (

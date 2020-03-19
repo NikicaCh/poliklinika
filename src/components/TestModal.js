@@ -95,10 +95,6 @@ export default function TestModal(props) {
           padding: theme.spacing(1),
           textAlign: 'center',
           color: theme.palette.text.secondary,
-        },
-        modal: {
-          width: "100%",
-          height: "100%"
         }
       }));
     
@@ -275,7 +271,7 @@ export default function TestModal(props) {
                         />
                         <TextField
                             className={classes.paper}
-                            id="employeerAdvice"
+                            id="employerAdvice"
                             placeholder=""
                             fullWidth={true}
                             variant={"outlined"}

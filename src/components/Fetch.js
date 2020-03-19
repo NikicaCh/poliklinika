@@ -99,15 +99,32 @@ export const createTest = (db, data, setAlert, setAlertMessage, setOpen) => {
 }
 
 
-export const addTestArrangement = (db, id,  data) => {
+export const addTestArrangement = (db, id,  data, setAlert, setAlertMessage) => {
     let docRef = db.collection("testArrangements").doc(id)
     docRef.get().then((doc) => {
         if(doc.exists) {
             return
         } else {
             db.collection('testArrangements').doc(id).set(data);
+            setAlert("success")
+            setAlertMessage("Успешно закажавте систематски преглед.")
         }
     })
 
 }
 
+export const createCompany = (db, id, data, setAlert, setAlertMessage) => {
+
+    let docRef = db.collection("companies").doc(id)
+    docRef.get().then((doc) => {
+        if(doc.exists) {
+            setAlert("error")
+            setAlertMessage("Фирма со тој ИД веќе постои во системот.")
+            return
+        } else {
+            db.collection('companies').doc(id).set(data);
+            setAlert("success")
+            setAlertMessage("Успешно креиравте фирма.")
+        }
+    })
+}

@@ -10,10 +10,14 @@ import {
 
 export default function TimeAndDate() {
   const [selectedDate, setSelectedDate] = React.useState(new Date());
+  const [selectedEndDate, setSelectedEndDate] = React.useState(new Date())
 
   const handleDateChange = date => {
-    setSelectedDate(date);
+    setSelectedDate(date)
   };
+  const handleEndDate = date => {
+    setSelectedEndDate(date)
+  }
 
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -43,8 +47,8 @@ export default function TimeAndDate() {
           margin="normal"
           id="time-end"
           label="Избери време на крај"
-          value={selectedDate}
-          onChange={handleDateChange}
+          value={selectedEndDate}
+          onChange={handleEndDate}
           KeyboardButtonProps={{
             'aria-label': 'change time',
           }}

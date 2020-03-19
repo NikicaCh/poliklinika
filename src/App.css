@@ -16,3 +16,7 @@ input[type="text"] {
     background: #A5AADB;
     cursor: pointer;
 }
+
+.arrangement:hover {
+    background: rgb(238, 238, 238);
+}

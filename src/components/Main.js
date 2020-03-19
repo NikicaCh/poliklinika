@@ -41,7 +41,12 @@ export default function Main(props) {
             }
             {
                 props.render === "main"
-                ? <Calendar companiesData={props.companiesData} db={props.db}/>
+                ? <Calendar
+                    companiesData={props.companiesData}
+                    db={props.db}
+                    setAlert={props.setAlert}
+                    setAlertMessage={props.setAlertMessage}
+                    setCompany={props.setCompany} />
                 : undefined
             }
             {

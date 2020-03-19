@@ -45,7 +45,7 @@ export default function Search(props) {
         console.log(results)
         results.forEach((res) => {
             if(res.title == value) {
-                props.handleClick(res.id)
+                props.handleClick(res.id, res.title)
             }
         })
     }

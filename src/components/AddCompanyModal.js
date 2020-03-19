@@ -8,11 +8,15 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { makeStyles } from '@material-ui/core/styles';
 
-import {createEmployee} from './Fetch'
+import {createEmployee, createCompany} from './Fetch'
+let randomstring = require("randomstring");
+
 
 
 export default function AddCompanyModal(props) {
   const [open, setOpen] = React.useState(props.render);
+  const [randomId, setRandomId] = React.useState(randomstring.generate(32))
+
 
   React.useEffect(() => {
     setOpen(props.render)
@@ -24,6 +28,23 @@ export default function AddCompanyModal(props) {
   
   const handleSubmit = () => {
     //validation first   
+    let data = {
+      name: document.getElementById("name").value,
+      D: document.getElementById("director").value,
+      address: document.getElementById("address").value,
+      eMail: document.getElementById("email").value,
+      telephone: document.getElementById("telephone").value
+    }
+    if( data.name !== "") {
+      createCompany(props.db, randomId, data, props.setAlert, props.setAlertMessage)
+        let toStore = {}
+        toStore.name = data.name;
+        toStore.id = randomId
+        props.handleSubmit(toStore)
+    } else {
+      props.setAlert("error")
+      props.setAlertMessage("Име на фирма е задолжително.")
+    }
   }
 
 
@@ -33,12 +54,13 @@ export default function AddCompanyModal(props) {
   const useStyles = makeStyles(theme => ({
     root: {
       flexGrow: 1,
+      padding: theme.spacing(1),
     },
     paper: {
-      padding: theme.spacing(1),
+      padding: theme.spacing(.5),
       textAlign: 'center',
       color: theme.palette.text.secondary,
-    },
+    }
   }));
 
   const classes = useStyles()
@@ -53,6 +75,7 @@ export default function AddCompanyModal(props) {
             autoFocus
             id="name"
             required={true}
+            fullWidth={true}
             variant={"outlined"}
             label="Име"
             type="text"
@@ -61,6 +84,7 @@ export default function AddCompanyModal(props) {
             className={classes.paper}
             id="director"
             required={true}
+            fullWidth={true}
             variant={"outlined"}
             label="Управител"
             type="text"
@@ -69,6 +93,7 @@ export default function AddCompanyModal(props) {
             className={classes.paper}
             id="address"
             required={true}
+            fullWidth={true}
             variant={"outlined"}
             label="Адреса"
             type="text"
@@ -78,6 +103,7 @@ export default function AddCompanyModal(props) {
             id="email"
             placeholder="name@example.com"
             required={true}
+            fullWidth={true}
             variant={"outlined"}
             label="email"
             type="email"

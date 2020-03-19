@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
+import firebase from 'firebase'
 import TestArrangement from './TestArrangement'
+import TodaysArrangements from './TodaysArrangements'
+
 import Button from '@material-ui/core/Button';
 import EventIcon from '@material-ui/icons/Event';
 import blue from '@material-ui/core/colors/blue';
@@ -43,7 +46,7 @@ const style={
         position: "absolute",
         top: "10%",
         left: "2%",
-        height: "auto",
+        maxHeight: "50vh",
         minHeight: "50vh",
         minWidth: "22vw",
         maxWidth: "27vw",
@@ -51,15 +54,14 @@ const style={
         borderRadius: "10px",
         boxShadow: "0 1px 1px 0 rgba(60,64,67,.3), 0 1px 1px 1px rgba(60,64,67,.15)",
         zIndex: "2",
-        padding:"1% 0 5% 0"
+        padding:"1% 0 5% 0",
     },
-    button: {
+    buttonB: {
+        position: "absolute",
         background: newColor,
         color: "white",
-        position: "relative",
-        margin: "1% 0 0 5%",
         borderRadius: "20px",
-        padding: "2%"
+        left: "10%"
     },
     calendarButton: {
         position: "relative",
@@ -77,12 +79,35 @@ const style={
     },
     component: {
         width: "90%"
+    },
+    arrangements: {
+        marginTop: "25%"
     }
 }
 
 export default function Calendar(props) {
 
     const [modal, setModal] = useState(false)
+    const [tests, setTests] = useState([])
+
+    async function getArrangemetns() {
+        let empty = []
+        const snapshot = await firebase.firestore().collection('testArrangements').get()
+        
+        snapshot.docs.map(doc => {
+            let data = doc.data()
+            data.id = doc.ref.id
+            empty.push(data)
+        });
+        setTests(empty)
+    }
+
+
+
+    // getArrangemetns()
+    
+
+    // const tests = ["test1", "test2", "test3"]
     
     const handleClose = () => {
         setModal(false)
@@ -98,10 +123,32 @@ export default function Calendar(props) {
                 <Button style={style.calendarButton}>Ден</Button>
                 <Button style={style.calendarButton2}>Недела</Button>
                 <Button style={style.calendarButton2}>Месец</Button>
-                <TestArrangement  db={props.db} render={modal} handleClose={handleClose} companiesData={props.companiesData}/>  
+                <TestArrangement  
+                    db={props.db}
+                    render={modal}
+                    handleClose={handleClose}
+                    companiesData={props.companiesData}
+                    setAlert={props.setAlert}
+                    setAlertMessage={props.setAlertMessage} 
+                    getArrangemetns={getArrangemetns}/>  
             </div>
             <div style={style.left}>
-                <Button style={style.button} onClick={openModal}>Закажи преглед</Button>
+                <div style={style.button}>
+                    <Button style={style.buttonB} onClick={openModal}>Закажи преглед</Button>
+                </div>
+                <div style={style.arrangements}>
+                    {
+                        tests.slice(0, 5).map((test) => {
+                            return <TodaysArrangements
+                                db={props.db}
+                                item={test}
+                                setAlert={props.setAlert}
+                                setAlertMessage={props.setAlertMessage}
+                                setCompany={props.setCompany} />
+                        })
+                    }
+                </div>
+                
             </div>
         </div>
     )
