@@ -8,6 +8,8 @@ import firebase from 'firebase'
 import Button from '@material-ui/core/Button';
 import HomeIcon from '@material-ui/icons/Home';
 import MiniSearch from 'minisearch'
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 
 
 const style = {
@@ -31,6 +33,20 @@ const style = {
         left: "13%",
         top: "35%",
         opacity: .7,
+        cursor: "pointer",
+        color: "#999999",
+    },
+    backward: {
+        position: "absolute",
+        left: "3%",
+        top: "25%",
+        cursor: "pointer",
+        color: "#999999",
+    },
+    forward: {
+        position: "absolute",
+        left: "6.5%",
+        top: "25%",
         cursor: "pointer",
         color: "#999999",
     },
@@ -86,7 +102,7 @@ export default function Navbar(props) {
 
     const logOut = () => {
         firebase.auth().signOut().then(function() {
-            // <Link to="/" />
+            window.location.replace('/')
         }, function(error) {
             // An error happened.
           });
@@ -106,7 +122,13 @@ export default function Navbar(props) {
                 </div>
             </div> */}
             <Search searchCompany={searchCompany} setCompanies={setCompanies} companies={companies} handleClick={props.setCompany} results={results}/>
-                <Button style={style.button} onClick={() => {props.home()}}><HomeIcon /></Button>
+            <Button style={style.button} onClick={() => {props.home()}}><HomeIcon /></Button>
+            <Button style={style.backward} onClick={() => {
+                window.history.back()
+            }}><ArrowBackIosIcon /></Button>
+            <Button style={style.forward} onClick={() => {
+                window.history.go(1)
+            }}><ArrowForwardIosIcon /></Button>
             <NotificationsIcon style={style.bell} />
             <ExitToAppIcon style={style.signout} onClick={() => { logOut() }}/>
         </div>

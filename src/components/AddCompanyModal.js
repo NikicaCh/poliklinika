@@ -15,7 +15,6 @@ let randomstring = require("randomstring");
 
 export default function AddCompanyModal(props) {
   const [open, setOpen] = React.useState(props.render);
-  const [randomId, setRandomId] = React.useState(randomstring.generate(32))
 
 
   React.useEffect(() => {
@@ -36,10 +35,11 @@ export default function AddCompanyModal(props) {
       telephone: document.getElementById("telephone").value
     }
     if( data.name !== "") {
-      createCompany(props.db, randomId, data, props.setAlert, props.setAlertMessage)
+      let id = randomstring.generate(32)
+      createCompany(props.db, id, data, props.setAlert, props.setAlertMessage)
         let toStore = {}
         toStore.name = data.name;
-        toStore.id = randomId
+        toStore.id = id
         props.handleSubmit(toStore)
     } else {
       props.setAlert("error")
@@ -75,7 +75,6 @@ export default function AddCompanyModal(props) {
             autoFocus
             id="name"
             required={true}
-            fullWidth={true}
             variant={"outlined"}
             label="Име"
             type="text"
@@ -84,7 +83,6 @@ export default function AddCompanyModal(props) {
             className={classes.paper}
             id="director"
             required={true}
-            fullWidth={true}
             variant={"outlined"}
             label="Управител"
             type="text"
@@ -93,7 +91,6 @@ export default function AddCompanyModal(props) {
             className={classes.paper}
             id="address"
             required={true}
-            fullWidth={true}
             variant={"outlined"}
             label="Адреса"
             type="text"
@@ -103,7 +100,6 @@ export default function AddCompanyModal(props) {
             id="email"
             placeholder="name@example.com"
             required={true}
-            fullWidth={true}
             variant={"outlined"}
             label="email"
             type="email"
@@ -111,7 +107,6 @@ export default function AddCompanyModal(props) {
           <TextField
             className={classes.paper}
             id="telephone"
-            required={true}
             variant={"outlined"}
             label="Телефон"
             type="tel"

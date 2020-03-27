@@ -21,12 +21,12 @@ export default function Employees(props) {
   const classes = useStyles();
   const [checked, setChecked] = React.useState([]);
 
-  const handleToggle = value => () => {
+  const handleToggle = (value, emp) => () => {
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
     if (currentIndex === -1) {
       newChecked.push(value);
-      props.selectEmployee(newChecked)
+      props.selectEmployee(emp)
       props.count(true)
     } else {
       newChecked.splice(currentIndex, 1);
@@ -44,7 +44,7 @@ export default function Employees(props) {
       {props.items.map((emp, key) => {
         const labelId = `checkbox-list-secondary-label-${key}`;
         return (
-          <ListItem key={key} button onClick={() => {
+          <ListItem button onClick={() => {
             props.setRender("employee"); 
             props.setEmployee(emp)}}>
             <ListItemAvatar>
@@ -57,8 +57,8 @@ export default function Employees(props) {
             <ListItemSecondaryAction>
               <Checkbox
                 edge="end"
-                onChange={handleToggle(key)}
-                checked={checked.indexOf(key) !== -1} //CAN BE USED FOR AUTO SELECTING EMPLOYEES
+                onChange={handleToggle(emp.id, emp)}
+                checked={checked.indexOf(emp.id) !== -1} //CAN BE USED FOR AUTO SELECTING EMPLOYEES
                 inputProps={{ 'aria-labelledby': labelId }}
               />
             </ListItemSecondaryAction>

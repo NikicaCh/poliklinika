@@ -9,7 +9,8 @@ import Paper from '@material-ui/core/Paper';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import StateNav from './StateNav';
-import CompanySettings from './CompanySettings'
+import EmployeeSettings from './EmployeeSettings'
+import VerticalLinearStepper from './VerticalLinearStepper'
 
 
 
@@ -86,6 +87,11 @@ const style={
         color: "white",
         padding: "2.7% 1%"
     },
+    noTests: {
+        position: "absolute",
+        top: "40%",
+        left: "25%"        
+    }
 }
 
 
@@ -113,12 +119,14 @@ export default function Employee(props) {
     }
 
     const setSwitch = (value) => {
+        console.log(value)
         setSwitchState(value)
     }
     return( 
         <div style={style.employee}>
             <div style={style.top}>
                 <h1 style={style.name}>{`${props.item.name} ${props.item.lastName}`}</h1>
+                <h1 style={style.topText}>{`${props.companyName} (${props.item.position})`}</h1>
                 {/* <h1 style={style.topText}>{this.props.item.address.charAt(0).toUpperCase() + this.props.item.address.slice(1)}</h1> */}
                 <div style={style.chipRow}>
                     <Chip icon={<AddToQueueIcon />} label={"Нов преглед"} style={style.chip} onClick={(e) => { e.preventDefault(); newTest()}}/>
@@ -157,11 +165,28 @@ export default function Employee(props) {
                 <div style={style.main}>
                    <StateNav setSwitch={setSwitch} navs={navs}/>
                     {
-                        (switchState === "settings")
-                        ? <CompanySettings
-                            item={this.props.item}
-                            setAlert={this.props.setAlert}
-                            setAlertMessage={this.props.setAlertMessage} />
+                        (switchState === "timeline")
+                        ? <EmployeeSettings
+                            item={props.item}
+                            db={props.db}
+                            setEmployee={props.setEmployee}
+                            setAlert={props.setAlert}
+                            setAlertMessage={props.setAlertMessage} />
+                        : undefined
+                    }
+                    {
+                        (switchState === "employees")
+                        ? 
+                        <div>
+                            {
+                                (props.item.tests && props.item.tests.length)
+                                ?  <VerticalLinearStepper items={props.item.tests} db={props.db}/>
+                                : <h1 style={style.noTests}>Нема систематски прегледи за овој вработен.</h1>
+                            }
+
+                                
+
+                        </div>
                         : undefined
                     }
                </div>

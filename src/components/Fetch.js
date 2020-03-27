@@ -57,7 +57,7 @@ export const getEmployee = (db, id, callback) => {
         if (!doc.exists) {
         console.log('No such document!');
         } else {
-        callback(doc.data())
+        callback(id, doc.data())
         }
     })
     .catch(err => {
@@ -73,30 +73,16 @@ export const findCompanyEmployees = (db, array) => {
     return newArray
 }
 
-export const createTest = (db, data, setAlert, setAlertMessage, setOpen) => {
-    let docRef = db.collection("test").doc(data.id);
-    docRef.get().then(function(doc) {
-        if (doc.exists) {
-            console.log("EXISTS")
-            db.collection('test').doc(data.id).set(data);
-            setAlertMessage("Веќе постои преглед со овој број на картон.Ажурирано.")
-            setAlert("info")
-            setOpen(false)
-            setTimeout(() => {
-                setAlert("")
-            }, 10000)
-        }
-        else {
-            db.collection('test').doc(data.id).set(data);
-            setAlertMessage("Успешно креиравте нов преглед.")
-            setAlert("success")
-            setOpen(false)
-            setTimeout(() => {
-              setAlert("")
-            }, 5000)
-        }
-    })
+export const createTest = (db, data, employeeId, setAlert, setAlertMessage, setOpen) => {
+    db.collection('tests').doc(data.id).set(data);
+    let employee = db.collection("employees").doc(employeeId)
+        employee.update({
+        tests: firebase.firestore.FieldValue.arrayUnion(data.id)
+        })
+    setAlertMessage("Успешно креиравте нов преглед.")
+    setAlert("success")
 }
+
 
 
 export const addTestArrangement = (db, id,  data, setAlert, setAlertMessage) => {
@@ -127,4 +113,28 @@ export const createCompany = (db, id, data, setAlert, setAlertMessage) => {
             setAlertMessage("Успешно креиравте фирма.")
         }
     })
+}
+
+export const deleteCompany = (db, id) => {
+    db.collection("companies").doc(id).delete().then(function() {
+        console.log("Document successfully deleted!");
+    }).catch(function(error) {
+        console.error("Error removing document: ", error);
+    });
+}
+
+export const deleteEmployee = (db, id) => {
+    db.collection("employees").doc(id).delete().then(function() {
+        console.log("Document successfully deleted!");
+    }).catch(function(error) {
+        console.error("Error removing document: ", error);
+    });
+}
+
+export const deleteTest = (db, id) => {
+    db.collection("tests").doc(id).delete().then(function() {
+        console.log("Document successfully deleted!");
+    }).catch(function(error) {
+        console.error("Error removing document: ", error);
+    });
 }

@@ -32,11 +32,14 @@ export default function Main(props) {
             {props.render === "company"
             ? <Company
                 item={item}
+                companyId={props.companyId}
                 db={props.db}
                 setAlert={props.setAlert}
                 setAlertMessage={props.setAlertMessage} 
                 setRender={props.setRender}
-                setEmployee={props.setEmployee}/>
+                setEmployee={props.setEmployee}
+                setCompany={props.setCompany}
+                removeFromCompaniesJson={props.removeFromCompaniesJson}/>
             : undefined
             }
             {

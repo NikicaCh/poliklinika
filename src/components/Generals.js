@@ -24,7 +24,7 @@ export default function Generals(props) {
     return (
         <div>
             {
-                props.item !== undefined
+                props.item !== undefined && props.item !== ""
                 ? <div style={style.element}>
                     <h1 style={style.description} title={props.description}>*{props.description}</h1>
                     {props.item} 

@@ -82,7 +82,7 @@ export default function TodaysArrangements(props) {
             props.setCompany(props.item.companyId)
         }}>
             <div style={style.left}>
-            <h1 style={style.day}>{new Date(props.item.date).getDay()}</h1>
+            <h1 style={style.day}>{new Date(props.item.date).getDate()}</h1>
                 <h1 style={style.month}>{months[new Date(props.item.date).getMonth()]}</h1>
                 <h1 style={style.year}>{new Date(props.item.date).getFullYear()}</h1>
             </div>

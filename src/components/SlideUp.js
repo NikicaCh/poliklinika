@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import RemoveIcon from '@material-ui/icons/Remove';
-import deepPurple from '@material-ui/core/colors/deepPurple'
+import DeleteIcon from '@material-ui/icons/Delete';
+import AddToQueueIcon from '@material-ui/icons/AddToQueue';
 import { Slide } from '@material-ui/core';
-
-const color = deepPurple[300]
-
+import { deleteEmployee } from './Fetch'
 
 
 const style = {
@@ -19,11 +18,12 @@ const style = {
         display: "grid",
         gridTemplateRows:  "25% 25% 25% 25%",
         zIndex: "2",
-        color: color
+        color: "white",
+        fontWeight: "100"
     },
     mini: {
         position: "absolute",
-        color: color,
+        color: "white",
         padding: "0 0 1.5% 0",
         margin: "1.5% 2% 0 90%",
     },
@@ -32,6 +32,17 @@ const style = {
         fontSize: "1.2vw",
         top: "25%",
         left: "10%"
+    },delete: {
+        color: "white",
+        position: "absolute",
+        margin: "3.5% 2% 0 60%",
+        cursor: "pointer",
+    },
+    newTest: {
+        color: "white",
+        position: "absolute",
+        margin: "3.5% 2% 0 70%",
+        cursor: "pointer",
     }
 }
 
@@ -41,9 +52,19 @@ export default function SlideUp(props) {
     useEffect(() => {
         setUp(props.fadeIn)
     })
+
+    const deleteEmployees = (employees) => {
+        employees.map((employee) => {
+            deleteEmployee(props.db, employee.id)
+            props.setCompany(props.companyId)
+            props.removeSelected()
+        })
+    }
     return(
         <Slide direction="up" in={up} mountOnEnter unmountOnExit>
             <div style={style.top}>
+                <DeleteIcon  style={style.delete} onClick={() => {deleteEmployees(props.selectedEmployees)}}/>
+                <AddToQueueIcon  style={style.newTest} onClick={() => { props.newTest()}}/>
                 <RemoveIcon className={"minimize"} style={style.mini} onClick={() => {    setUp(prev => !prev); }}/>
             <span style={style.counter}>{`${props.count || 0} селектирани`}</span>
             </div>

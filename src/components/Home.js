@@ -9,9 +9,9 @@ import Axios from 'axios'
 
 
 let dev = "http://localhost:5000"
-let prod = "https://poliklinika-server.herokuapp.com"
+let prod = "https://poliklinika.herokuapp.com"
 
-let env = dev;
+let env = prod;
 
 
 const style= {
@@ -29,6 +29,7 @@ class Home extends React.Component {
         super(props)
         this.state = {
             company: [],
+            companyId: "",
             render: "main",
             alert: "",
             alertMessage: "",
@@ -48,6 +49,7 @@ class Home extends React.Component {
         this.getCompaniesRequest = this.getCompaniesRequest.bind(this)
         this.addDataToCompaniesJson = this.addDataToCompaniesJson.bind(this)
         this.setRecentSearches = this.setRecentSearches.bind(this)
+        this.removeFromCompaniesJson = this.removeFromCompaniesJson.bind(this)
     }
 
     
@@ -71,9 +73,21 @@ class Home extends React.Component {
     }
 
     addDataToCompaniesJson = (data) => { // call when adding new company, it will call getCompaniesRequest func when promise resolves
-        Axios.post(`${env}/updateCompanies", {body: data}`)
+        Axios.post(`${env}/updateCompanies`, {body: data})
         .then(() => {
             this.getCompaniesRequest()
+        })
+    }
+
+    removeFromCompaniesJson = (data) => {
+        Axios.post(`${env}/removeCompany`, {body: data})
+        .then(() => {
+            this.getCompaniesRequest()
+        })
+        Axios.post(`${env}/remove-recent`, {body: data})
+        .then(() => {
+            Axios.get(`${env}/recent-searches`)
+            .then(data => this.setState({recent: data.data}))
         })
     }
 
@@ -81,7 +95,7 @@ class Home extends React.Component {
         window.history.replaceState(this.state, null, "");
         this.getCompaniesRequest()
         Axios.get(`${env}/recent-searches`)
-            .then(data => this.setState({recent: data.data}))
+        .then(data => this.setState({recent: data.data}))
     }
 
 
@@ -93,15 +107,19 @@ class Home extends React.Component {
         let data = {}
         data.name = name;
         data.id = id;
-        Axios.post(`${env}/recent-searches`, {body: data})
-        .then(() => {
-            Axios.get(`${env}/recent-searches`)
-            .then(data => this.setState({recent: data.data}))
-        })
+        let pos = this.state.recent.map((e) => { return e.id; }).indexOf(id); //check if company is already in list, so don't add it again
+        if(pos === -1) {
+            Axios.post(`${env}/recent-searches`, {body: data})
+            .then(() => {
+                Axios.get(`${env}/recent-searches`)
+                .then(data => this.setState({recent: data.data}))
+            })
+        }
     }
     
     
     handleSearchClick = (item) => {
+        this.setState({companyId: item})
         const docRef = this.props.db.collection("companies").doc(item)
         docRef.get()
         .then((doc) => {
@@ -126,7 +144,7 @@ class Home extends React.Component {
     }
 
     handleClick = () => {
-        // addCompanies(this.props.db)
+        addCompanies(this.props.db)
 
         // this.setState({render:"employee"})
 
@@ -180,13 +198,15 @@ class Home extends React.Component {
                     db={this.props.db}
                     render={this.state.render}
                     item={this.state.company}
+                    companyId={this.state.companyId}
                     setAlert={this.setAlert}
                     setAlertMessage={this.setAlertMessage} 
                     setRender={this.setRender}
                     setEmployee={this.setEmployee}
                     employee={this.state.employee}
                     companiesData={this.state.companiesData}
-                    setCompany={this.handleSearchClick}/>
+                    setCompany={this.handleSearchClick}
+                    removeFromCompaniesJson={this.removeFromCompaniesJson}/>
             </div>
         )
     }

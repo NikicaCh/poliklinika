@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import firebase from 'firebase'
 import TestArrangement from './TestArrangement'
 import TodaysArrangements from './TodaysArrangements'
+import CalendarTable from './CalendarTable'
 
 import Button from '@material-ui/core/Button';
 import EventIcon from '@material-ui/icons/Event';
@@ -85,71 +86,107 @@ const style={
     }
 }
 
-export default function Calendar(props) {
+class Calendar extends React.Component {
 
-    const [modal, setModal] = useState(false)
-    const [tests, setTests] = useState([])
+    constructor(props) {
+        super(props)
+        
+        this.state = {
+            modal: false,
+            tests: [],
+            format: "day"
+        }
 
-    async function getArrangemetns() {
+        this.getArrangemetns = this.getArrangemetns.bind(this)
+        this.handleClose = this.handleClose.bind(this)
+        this.openModal = this.openModal.bind(this)
+        this.setFormat = this.setFormat.bind(this)
+    }
+
+
+    async getArrangemetns() {
         let empty = []
         const snapshot = await firebase.firestore().collection('testArrangements').get()
         
         snapshot.docs.map(doc => {
+            console.log("SNAP")
             let data = doc.data()
             data.id = doc.ref.id
+            let yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() -1)
+            if(new Date(data.date) < new Date(yesterday)) {
+                this.props.db.collection("testArrangements").doc(data.id).delete().then(function() {
+                    console.log("Document successfully deleted!");
+                }).catch(function(error) {
+                    console.error("Error removing document: ", error);
+                });
+            }
             empty.push(data)
         });
-        setTests(empty)
+        this.setState({tests: empty})
     }
 
+    componentDidMount() {
+        this.getArrangemetns()
+    }
 
-
-    // getArrangemetns()
+    componentWillReceiveProps() {
+        this.getArrangemetns()
+    }
     
 
     // const tests = ["test1", "test2", "test3"]
     
-    const handleClose = () => {
-        setModal(false)
+    handleClose = () => {
+        this.setState({modal: false})
     }
 
-    const openModal = () => {
-        setModal(true)
+    openModal = () => {
+        this.setState({modal: true})
     }
 
-    return (
-        <div style={style.calendar}>
-            <div style={style.main}>
-                <Button style={style.calendarButton}>Ден</Button>
-                <Button style={style.calendarButton2}>Недела</Button>
-                <Button style={style.calendarButton2}>Месец</Button>
-                <TestArrangement  
-                    db={props.db}
-                    render={modal}
-                    handleClose={handleClose}
-                    companiesData={props.companiesData}
-                    setAlert={props.setAlert}
-                    setAlertMessage={props.setAlertMessage} 
-                    getArrangemetns={getArrangemetns}/>  
-            </div>
-            <div style={style.left}>
-                <div style={style.button}>
-                    <Button style={style.buttonB} onClick={openModal}>Закажи преглед</Button>
+    setFormat = (value) => {
+        this.setState({format: value})
+    }
+
+    render() {
+        return (
+            <div style={style.calendar}>
+                <div style={style.main}>
+                    <Button style={style.calendarButton} onClick={() => {this.setFormat("day")}}>Ден</Button>
+                    <Button style={style.calendarButton2} onClick={() => {this.setFormat("week")}}>Недела</Button>
+                    <Button style={style.calendarButton2} onClick={() => {this.setFormat("month")}}>Месец</Button>
+                    <TestArrangement  
+                        db={this.props.db}
+                        render={this.state.modal}
+                        handleClose={this.handleClose}
+                        companiesData={this.props.companiesData}
+                        setAlert={this.props.setAlert}
+                        setAlertMessage={this.props.setAlertMessage} 
+                        getArrangemetns={this.getArrangemetns}/>  
+                    <CalendarTable format={this.state.format} tests={this.state.tests}/>
                 </div>
-                <div style={style.arrangements}>
-                    {
-                        tests.slice(0, 5).map((test) => {
-                            return <TodaysArrangements
-                                db={props.db}
-                                item={test}
-                                setAlert={props.setAlert}
-                                setAlertMessage={props.setAlertMessage}
-                                setCompany={props.setCompany} />
-                        })
-                    }
+                <div style={style.left}>
+                    <div style={style.button}>
+                        <Button style={style.buttonB} onClick={this.openModal}>Закажи преглед</Button>
+                    </div>
+                    <div style={style.arrangements}>
+                        {
+                            this.state.tests.slice(0, 5).map((test) => {
+                                return <TodaysArrangements
+                                    db={this.props.db}
+                                    item={test}
+                                    setAlert={this.props.setAlert}
+                                    setAlertMessage={this.props.setAlertMessage}
+                                    setCompany={this.props.setCompany} />
+                            })
+                        }
+                    </div>
+                    
                 </div>
-                
             </div>
-        </div>
-    )
+        )
+    }   
 }
+
+export default Calendar

@@ -7,6 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { makeStyles } from '@material-ui/core/styles';
+import firebase from 'firebase'
 
 import {createEmployee} from './Fetch'
 
@@ -23,47 +24,59 @@ export default function AddEmployeeModal(props) {
   };
   
   const handleSubmit = () => {
+    const removeFalsy = (obj) => {
+      let newObj = {};
+      Object.keys(obj).forEach((prop) => {
+        if (obj[prop]) { newObj[prop] = obj[prop]; }
+      });
+      return newObj;
+    };
     //validation first
     let data = {
         id: document.getElementById("id").value,
-        name: document.getElementById("name").value,
-        lastName: document.getElementById("lastName").value,
+        name: document.getElementById("name").value.toUpperCase(),
+        lastName: document.getElementById("lastName").value.toUpperCase(),
         age: document.getElementById("age").value,
-        address: document.getElementById("address").value,
-        education: document.getElementById("education").value,
-        position: document.getElementById("position").value,
+        address: document.getElementById("address").value.toUpperCase(),
+        education: document.getElementById("education").value.toUpperCase(),
+        position: document.getElementById("position").value.toUpperCase(),
         work: document.getElementById("work").value,
-        family: document.getElementById("family").value,
-        company: props.company.id //not storing it as a ref for now, change if neccesery
-      }
-    let companyData = props.company;
-    companyData.employees = [...props.employees, data.id]
-    console.log("NEW",companyData)
-    let docRef = props.db.collection("employees").doc(data.id);
-    let message = docRef.get().then(function(doc) {
-        if (doc.exists) {
-            props.setAlertMessage("Вработен со тој ЕМБГ веќе постои во системот")
-            props.setAlert("error")
-            setOpen(false)
-            setTimeout(() => {
-              props.setAlert("")
-            }, 3000)
-            throw new Error("Вработен со тој ЕМБГ веќе постои во системот")
-        } else {
-            props.db.collection('employees').doc(data.id).set(data);
-            props.db.collection('companies').doc(props.company.id).set(companyData)
-            props.setModal(false)
-            throw "good job" 
-        }
-    })
-    .catch(function(error) {
-      console.log(error);
-    });
-    if(message === "good job") {
-      props.setAlertMessage("Успешно креиравте нов вработен.")
-      props.setAlert("success")
+        family: document.getElementById("family").value.toUpperCase(),
+        company: props.companyId //not storing it as a ref for now, change if neccesery
     }
-    return message
+    if(data.id === undefined || data.id === "" || data.name === undefined || data.name === "" || data.lastName === undefined || data.lastName === "" || data.position === undefined || data.position === "") {
+          props.setAlertMessage("Недостасуваат податоци")
+          props.setAlert("error")
+          setOpen(false)
+    } else {
+      let newData = removeFalsy(data) //remove empty strings 
+    
+      let docRef = props.db.collection("employees").doc(newData.id);
+          docRef.get().then(function(doc) {
+          if (doc.exists) {
+              props.setAlertMessage("Вработен со тој ЕМБГ веќе постои во системот")
+              props.setAlert("error")
+              setOpen(false)
+          } else {
+              props.db.collection('employees').doc(newData.id).set(newData);
+              let company = props.db.collection("companies").doc(props.companyId)
+              company.update({
+                  employees: firebase.firestore.FieldValue.arrayUnion(newData.id)
+              })
+              .then((res) => {
+                props.setAlertMessage("Успешно додадовте вработен.")
+                props.setAlert("success")
+                props.setCompany(props.companyId)
+                props.setModal(false)
+              })
+              .catch((err) => console.log(err))
+             
+          }
+      })
+      .catch(function(error) {
+        console.log(error);
+      });    
+    }    
     
   }
 

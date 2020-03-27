@@ -5,15 +5,17 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 
-export default function TestRadios() {
-  const [value1, setValue1] = React.useState();
-  const [value2, setValue2] = React.useState();
+export default function TestRadios(props) {
+  const [value1, setValue1] = React.useState(0);
+  const [value2, setValue2] = React.useState(0);
 
   const handleChange1 = event => {
     setValue1(event.target.value);
+    props.setRadios(event.target.value, value2)
   };
   const handleChange2 = event => {
     setValue2(event.target.value);
+    props.setRadios(value1, event.target.value)
   };
 
   return (
@@ -42,13 +44,13 @@ export default function TestRadios() {
         <p />
         <RadioGroup aria-label="position" name="position2" value={value2} onChange={handleChange2} row size={"medium"} variant={"filled"}>
         <FormControlLabel
-          value="4"
+          value="1"
           control={<Radio color="primary" />}
           label="Патолошка состојба НЕМА"
           labelPlacement="top"
         />
         <FormControlLabel
-          value="5"
+          value="2"
           control={<Radio color="primary" />}
           label="Патолошка состојба ИМА"
           labelPlacement="top"

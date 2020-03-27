@@ -17,6 +17,9 @@ import { findCompanyEmployees, getEmployee } from './Fetch';
 import StateNav from './StateNav';
 import AlertSnack from './AlertSnack';
 import TestModal from './TestModal';
+import TextField from '@material-ui/core/TextField';
+import MiniSearch from 'minisearch'
+
 
 
 const newColor = green[400];
@@ -104,6 +107,11 @@ const style = {
     stateNav: {
         position: "fixed",
         top: "0"
+    },
+    empSearch: {
+        position: "absolute",
+        top: "15%",
+        left: "80%"
     }
 }
 
@@ -121,6 +129,7 @@ class Company extends Component  {
             testModal: false,
             ids: [],
             employees: [],
+            filteredEmployees: [],
             selected: 0,
             selectedEmployees: [],
             fadeIn: false,
@@ -139,12 +148,22 @@ class Company extends Component  {
         this.setSwitch = this.setSwitch.bind(this)
         this.setPrint = this.setPrint.bind(this)
         this.returnTestModal = this.returnTestModal.bind(this)
+        this.setFadeIn = this.setFadeIn.bind(this)
+        this.removeSelected = this.removeSelected.bind(this)
     }
     setModal = () => {
        this.setState({empModal: false})     
     }
     setTestModal = () => {
         this.setState({testModal: false})     
+    }
+    setFadeIn = () => {
+        this.setState({fadeIn: true}, () => {
+            this.setState({empModal: false})     
+        })
+    }
+    removeSelected = () => {
+        this.setState({selected: 0, selectEmployees: [], fadeIn: false})
     }
     newTest = () => {
         if(this.state.selected == 0) { //set alert  
@@ -154,10 +173,11 @@ class Company extends Component  {
                 this.props.setAlert("")
             }, 3000)
         } else {
-            this.setState({testModal: true})
-            this.props.setAlert()
-            this.props.setAlertMessage("")
-            this.setState({fadeIn: false})
+            this.setState({testModal: true}, () => {
+                this.props.setAlert()
+                this.props.setAlertMessage("")
+                this.setState({fadeIn: false})
+            })
         }
     }
     emps = () => { //needed function to pass it to new employee modal, to rerender emps after adding  
@@ -170,24 +190,27 @@ class Company extends Component  {
     componentWillReceiveProps() {
         this.setState({employees: []}, () => {
             this.emps()
-            // if(this.props.item.id) { // SNAPSHOT that listens for changes in THIS company
-            //     this.props.db.collection("companies").doc(this.props.item.id).onSnapshot((snap) => {
-            //         if(snap.exists) {
-            //             this.setState({employees: []}, () => {
-            //                 snap.data().employees.map((emp, key) => {
-            //                     getEmployee(this.props.db, emp, this.callback)
-            //                 })
-            //             })
-                        
-            //         }
-            //     })
-            // }
         })
+        //     // if(this.props.item.id) { // SNAPSHOT that listens for changes in THIS company
+        //     //     this.props.db.collection("companies").doc(this.props.item.id).onSnapshot((snap) => {
+        //     //         if(snap.exists) {
+        //     //             this.setState({employees: []}, () => {
+        //     //                 snap.data().employees.map((emp, key) => {
+        //     //                     getEmployee(this.props.db, emp, this.callback)
+        //     //                 })
+        //     //             })
+                        
+        //     //         }
+        //     //     })
+        //     // }
+        // })
     }
    
 
-    callback = (data) => {
-        this.setState({employees:[...this.state.employees, data]})
+    callback = (id, data) => {
+        let obj = data;
+        obj.id = id;
+        this.setState({employees:[...this.state.employees, obj]})
     }
 
     countSelected = (condition) => { //if check or uncheck
@@ -204,12 +227,8 @@ class Company extends Component  {
         }
     }
 
-    selectEmployee = (keys) => {
-        let arrayOfSelected = []
-        keys.map((_key) => {
-            arrayOfSelected.push(this.state.employees[_key])
-        })
-        this.setState({selectedEmployees: arrayOfSelected})
+    selectEmployee = (emp) => {
+        this.setState({selectedEmployees: [...this.state.selectedEmployees, emp]})
     }
     
     componentDidMount() {
@@ -246,6 +265,12 @@ class Company extends Component  {
     )}
 
     render() {
+        let items;
+        if(this.state.filteredEmployees.length === 0) {
+            items = this.state.employees
+        } else {
+            items = this.state.filteredEmployees
+        }
         return (
             <div style={style.company}>
                 <div style={style.top}>
@@ -262,11 +287,14 @@ class Company extends Component  {
                         setAlert={this.props.setAlert}
                         setAlertMessage={this.props.setAlertMessage} 
                         company={this.props.item}
-                        employees={this.props.item.employees}/>
+                        companyId={this.props.companyId}
+                        employees={this.props.item.employees}
+                        setCompany={this.props.setCompany}/>
                     <TestModal 
                         render={this.state.testModal}
                         db={this.props.db}
                         setModal={this.setTestModal}
+                        setFadeIn={this.setFadeIn}
                         setAlert={this.props.setAlert}
                         setAlertMessage={this.props.setAlertMessage}
                         numberOfEmployees={this.state.selected}
@@ -274,6 +302,41 @@ class Company extends Component  {
                         setPrint={this.setPrint}
                         returnTestModal={this.returnTestModal}
                         selectedEmployees={this.state.selectedEmployees}
+                    />
+                    <TextField
+                    style={style.empSearch}
+                    label={"филтрирај вработени"}
+                    margin="normal"
+                    variant="outlined"
+                    onChange={(e) => {
+                        let value = e.target.value;
+                        if(value !== "") {
+                            const miniSearch = new MiniSearch({
+                                fields: ['name', 'lastName'],
+                                extractField: (id, name) => {
+                                    // Access nested fields
+                                    const value = name.split('.').reduce((doc, key) => doc && doc[key], id)
+                                    // If field value is an array, join by space
+                                    return Array.isArray(value) ? value.join(' ') : value
+                            }})
+                            miniSearch.addAll(this.state.employees)
+                            let results = miniSearch.autoSuggest(value)
+                            let array = []
+                            results.map((result) => {
+                                console.log(result.suggestion)
+                                let suggestion = result.suggestion.toUpperCase();
+                                this.state.employees.map((employee) => {
+                                    if(employee.name == suggestion || employee.lastName == suggestion || `${employee.name} ${employee.lastName}` == suggestion || `${employee.lastName} ${employee.name}` == suggestion) {
+                                        array.push(employee)
+                                    }
+                                })
+                            })
+                            this.setState({filteredEmployees: array})
+                        } else {
+                            this.setState({filteredEmployees: this.state.employees})
+                        }
+                
+                    }}
                     />
                 </div>
                 <div style={style.generals}>
@@ -287,25 +350,39 @@ class Company extends Component  {
                         <Tab label="Генералии" />
                     </Tabs>
                     </Paper>
-                    <Generals item={this.props.item.D} description={"Управител"}/>
+                    <Generals item={this.props.item.D || this.props.item.director} description={"Управител"}/>
                     <Generals item={this.props.item.address} description={"Адреса"}/>
                     <Generals item={this.props.item.telephone} description={"Телефон"}/>
-                    <Generals item={this.props.item.eMail} description={"Е-Маил"}/>
+                    <Generals item={this.props.item.eMail || this.props.item.email} description={"Е-Маил"}/>
                 </div>
-                <SlideUp fadeIn={this.state.fadeIn} count={this.state.selected}/>
+                <SlideUp
+                    fadeIn={this.state.fadeIn}
+                    count={this.state.selected}
+                    newTest={this.newTest}
+                    db={this.props.db}
+                    selectedEmployees={this.state.selectedEmployees}
+                    companyId={this.props.companyId}
+                    setCompany={this.props.setCompany}
+                    setFadeIn={this.setFadeIn}
+                    removeSelected={this.removeSelected}
+                    />
                <div style={style.main}>
                    <StateNav style={style.stateNav} setSwitch={this.setSwitch} navs={this.state.navs}/>
                     {
                         (this.state.switchState === "employees") 
-                        ? <Employees items={this.state.employees} count={this.countSelected} selectEmployee={this.selectEmployee} setRender={this.props.setRender} setEmployee={this.props.setEmployee}/> 
+                        ? <Employees items={items || this.state.employees} count={this.countSelected} selectEmployee={this.selectEmployee} setRender={this.props.setRender} setEmployee={this.props.setEmployee}/> 
                         : undefined
                     }
                     {
                         (this.state.switchState === "settings")
                         ? <CompanySettings
                             item={this.props.item}
+                            db={this.props.db}
+                            companyId={this.props.companyId}
                             setAlert={this.props.setAlert}
-                            setAlertMessage={this.props.setAlertMessage} />
+                            setAlertMessage={this.props.setAlertMessage} 
+                            setCompany={this.props.setCompany}
+                            removeFromCompaniesJson={this.props.removeFromCompaniesJson}/>
                         : undefined
                     }
                </div>
