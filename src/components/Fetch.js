@@ -86,16 +86,18 @@ export const createTest = (db, data, employeeId, setAlert, setAlertMessage, setO
 
 
 export const addTestArrangement = (db, id,  data, setAlert, setAlertMessage) => {
-    let docRef = db.collection("testArrangements").doc(id)
-    docRef.get().then((doc) => {
-        if(doc.exists) {
-            return
+    console.log("CALLED")
+    db.collection('testArrangements').doc(id).set(data, (error) => {
+        if(error) {
+            console.log(error)
+            setAlert("error")
+            setAlertMessage("Грешка, обиди се повторно.")
         } else {
-            db.collection('testArrangements').doc(id).set(data);
+            console.log("SHOUD WORK")
             setAlert("success")
-            setAlertMessage("Успешно закажавте систематски преглед.")
+            setAlertMessage("Успешно закажавте преглед.")
         }
-    })
+    });
 
 }
 

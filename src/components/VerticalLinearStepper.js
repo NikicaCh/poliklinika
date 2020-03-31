@@ -69,8 +69,8 @@ class VerticalLinearStepper extends React.Component {
                     this.setState({steps: [...this.state.steps, doc.data()]})
                 }
                 let dates = []
-                this.state.steps.map((step) => {
-                if(dates.indexOf(step.date) !== -1) { // test with the same date already excists, so remove the rest
+                this.state.steps.reverse().map((step) => {
+                if(dates.indexOf(step.date) !== -1 || dates.indexOf(step.B) !== -1) { // test with the same date already excists, so remove the rest
                   this.props.db.collection('tests').doc(step.id).delete().then(function() {
                     console.log("Document successfully deleted!");
                     }).catch(function(error) {

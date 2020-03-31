@@ -37,9 +37,8 @@ export default function AddCompanyModal(props) {
     if( data.name !== "") {
       let id = randomstring.generate(32)
       createCompany(props.db, id, data, props.setAlert, props.setAlertMessage)
-        let toStore = {}
-        toStore.name = data.name;
-        toStore.id = id
+        data.id = id
+        let toStore = data;
         props.handleSubmit(toStore)
     } else {
       props.setAlert("error")

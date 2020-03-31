@@ -41,7 +41,8 @@ const style={
         padding: "1%",
         // overflowY: "scroll",
         overflowX: "hidden",
-        boder: "solid 1px red"
+        boder: "solid 1px red",
+        overflowY: "hidden"
     },
     left: {
         position: "absolute",
@@ -69,7 +70,7 @@ const style={
         background: newColor2,
         color: "white",
         borderRadius: "20px",
-        marginRight: "3%"
+        margin: "0% 3% 0% 75%"
     },
     calendarButton2: {
         position: "relative",
@@ -94,7 +95,8 @@ class Calendar extends React.Component {
         this.state = {
             modal: false,
             tests: [],
-            format: "day"
+            todays: [],
+            format: "month"
         }
 
         this.getArrangemetns = this.getArrangemetns.bind(this)
@@ -126,10 +128,9 @@ class Calendar extends React.Component {
         this.setState({tests: empty})
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getArrangemetns()
     }
-
     componentWillReceiveProps() {
         this.getArrangemetns()
     }
@@ -153,7 +154,6 @@ class Calendar extends React.Component {
         return (
             <div style={style.calendar}>
                 <div style={style.main}>
-                    <Button style={style.calendarButton} onClick={() => {this.setFormat("day")}}>Ден</Button>
                     <Button style={style.calendarButton2} onClick={() => {this.setFormat("week")}}>Недела</Button>
                     <Button style={style.calendarButton2} onClick={() => {this.setFormat("month")}}>Месец</Button>
                     <TestArrangement  
@@ -169,16 +169,19 @@ class Calendar extends React.Component {
                 <div style={style.left}>
                     <div style={style.button}>
                         <Button style={style.buttonB} onClick={this.openModal}>Закажи преглед</Button>
+                        <Button style={style.calendarButton}>Денес</Button>
                     </div>
                     <div style={style.arrangements}>
                         {
-                            this.state.tests.slice(0, 5).map((test) => {
-                                return <TodaysArrangements
+                            this.state.tests.map((test) => {
+                                if(new Date(test.date).getDate() === new Date().getDate()) {
+                                    return <TodaysArrangements
                                     db={this.props.db}
                                     item={test}
                                     setAlert={this.props.setAlert}
                                     setAlertMessage={this.props.setAlertMessage}
                                     setCompany={this.props.setCompany} />
+                                }
                             })
                         }
                     </div>

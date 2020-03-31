@@ -87,7 +87,7 @@ export default function Navbar(props) {
         if(value !== "") {
             const miniSearch = new MiniSearch({
                 fields: ['name'],
-                storeFields: ['id','name']
+                storeFields: ['name']
             })
             miniSearch.addAll(props.companiesData)
             let results = miniSearch.search(value)

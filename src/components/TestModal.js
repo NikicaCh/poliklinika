@@ -54,7 +54,8 @@ class TestModal extends React.Component {
 
     handleClose = () => {
         this.props.setModal()
-        this.props.setFadeIn()
+        if(!this.props.format) this.props.setFadeIn() // if called from company and not from employee
+
     };
      
     setRadios = (value1, value2) => {
@@ -129,17 +130,24 @@ class TestModal extends React.Component {
             radio2: this.state.radio2
         }
         Object.keys(data).forEach((key) => (data[key] == "") && delete data[key]); //removing empty strings
+        let empId
+        if(!this.props.format) {
+            empId = this.props.selectedEmployees[this.state.counter].id
+        } else {
+            empId = this.props.employee.id
+        }
         createTest(this.props.db,
             data,
-            this.props.selectedEmployees[this.state.counter].id,
+            empId,
             this.props.setAlert,
             this.props.setAlertMessage,
             )
     }
 
     sendData = (value) => {
-        let data = this.props.selectedEmployees[this.state.counter];
-        let body = {
+        let data = this.props.selectedEmployees[this.state.counter] || this.props.employee
+        this.setState({body: {}})
+        let obj = {
             name: data.name,
             lastName: data.lastName,
             age: data.age,
@@ -148,7 +156,9 @@ class TestModal extends React.Component {
             radio1: this.state.radio1,
             radio2: this.state.radio2
         }
-        Axios.post(`https://poliklinika.herokuapp.com/create-${value}-pdf`, {body})
+        this.setState({body: obj}, () => {
+            let body = this.state.body
+            Axios.post(`https://poliklinika.herokuapp.com/create-${value}-pdf`, {body})
             .then(() => Axios.get("https://poliklinika.herokuapp.com/fetch-pdf", {responseType: "blob"})) //WE CALL ".THEN" SINCE WE HAVE PROMISE.RESOLVE() in server.
             .then((res) => {
                 const pdfBlob = new Blob([res.data], {type: "application/pdf"})
@@ -157,6 +167,8 @@ class TestModal extends React.Component {
                 window.open(url,'_blank')
             
             })
+        })
+        
     }
 
 

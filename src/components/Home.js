@@ -20,7 +20,8 @@ const style= {
         width: "100vw",
         height: "100vh",
         overflowY: "hidden",
-        background: "#F3F3F3"
+        background: "#F3F3F3",
+        overflow: "hidden"
     }
 }
 
@@ -53,18 +54,35 @@ class Home extends React.Component {
     }
 
     
-    getCompaniesRequest = () => {
-        Axios.post(`${env}/getCompanies`, {pass: "hello"})
-        .then(() => {
-            Axios.get(`${env}/getData`)
-            .then(data => this.setState({companiesData: data.data}))
-        })
+    async getCompaniesRequest()  {
+        // Axios.post(`${env}/getCompanies`, {pass: "hello"})
+        // .then(() => {
+        //     Axios.get(`${env}/getData`)
+        //     .then(data => this.setState({companiesData: data.data}))
+        // })
+
+        const cache = localStorage.getItem("companies");
+        if(cache) {
+            this.setState({companiesData: JSON.parse(cache)})
+        } else {
+            const snapshot = await firebase.firestore().collection('companies').get()
+            let arrayOfCompanies = []
+            return snapshot.docs.map(doc => {
+                let obj = doc.data()
+                obj.id = doc.id
+                arrayOfCompanies.push(obj)
+                this.setState({companiesData: arrayOfCompanies}, () => {
+                    localStorage.setItem("companies", JSON.stringify(this.state.companiesData));
+                })
+            });
+        }
+        
 
         window.onpopstate = function (event) {
             if (event.state) { 
               let state = event.state; 
             }
-            // render(state); // See example render function in summary below
+            // render(state);
             if(event.state !== undefined) {
                 this.setState({render: event.state.render})
                 console.log(event.state)
@@ -73,22 +91,44 @@ class Home extends React.Component {
     }
 
     addDataToCompaniesJson = (data) => { // call when adding new company, it will call getCompaniesRequest func when promise resolves
-        Axios.post(`${env}/updateCompanies`, {body: data})
-        .then(() => {
-            this.getCompaniesRequest()
-        })
+        // Axios.post(`${env}/updateCompanies`, {body: data})
+        // .then(() => {
+        //     this.getCompaniesRequest()
+        // })
+
+        const cache = localStorage.getItem("companies");
+        if(cache) {
+            let array = this.state.companiesData;
+            array.push(data)
+            this.setState({companiesData: array}, () => {
+                localStorage.setItem("companies", JSON.stringify(this.state.companiesData));
+            })
+        }
+
     }
 
-    removeFromCompaniesJson = (data) => {
-        Axios.post(`${env}/removeCompany`, {body: data})
-        .then(() => {
-            this.getCompaniesRequest()
-        })
-        Axios.post(`${env}/remove-recent`, {body: data})
-        .then(() => {
-            Axios.get(`${env}/recent-searches`)
-            .then(data => this.setState({recent: data.data}))
-        })
+    removeFromCompaniesJson = (id) => {
+        const cache = localStorage.getItem("companies");
+        if(cache) {
+            let array = []
+            this.state.companiesData.map((company) => {
+                if(company.id !== id) {
+                    array.push(company)
+                }
+                this.setState({companiesData: array}, () => {
+                    localStorage.setItem("companies", JSON.stringify(this.state.companiesData));
+                })
+            })
+        }
+        // Axios.post(`${env}/removeCompany`, {body: data})
+        // .then(() => {
+        //     this.getCompaniesRequest()
+        // })
+        // Axios.post(`${env}/remove-recent`, {body: data})
+        // .then(() => {
+        //     Axios.get(`${env}/recent-searches`)
+        //     .then(data => this.setState({recent: data.data}))
+        // })
     }
 
     componentDidMount () {
@@ -119,15 +159,13 @@ class Home extends React.Component {
     
     
     handleSearchClick = (item) => {
-        this.setState({companyId: item})
-        const docRef = this.props.db.collection("companies").doc(item)
-        docRef.get()
-        .then((doc) => {
-            if(doc.exists) {
-                this.setState({company: doc.data(), render: "company"})
+        this.state.companiesData.map((company) => {
+            if(company.id === item) {
+                this.setState({company: company, render: "company", companyId: company.id})
                 this.pushToHistoryObject()
-                this.setRecentSearches(doc.data().name, item)
+                this.setRecentSearches(company.name, company.id)
             }
+            
         })
         // setCompany(item)
         // setRender("company")

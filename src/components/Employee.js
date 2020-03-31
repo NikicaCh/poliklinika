@@ -14,6 +14,7 @@ import VerticalLinearStepper from './VerticalLinearStepper'
 
 
 
+
 const newColor = deepPurple[300]
 
 
@@ -103,17 +104,12 @@ export default function Employee(props) {
     const navs = ["Времеплов", "Подесувања"]
 
     const setTest = () => {
-        setTestModal(false)
+        setTestModal(!testModal)
     }
 
     const printSet = () => {
         setPrint(!print)
     }
-
-    const returnTestModal = () => {
-        setTestModal(!testModal)
-    }
-
     const newTest = () => {
         setTestModal(true)
     }
@@ -129,7 +125,7 @@ export default function Employee(props) {
                 <h1 style={style.topText}>{`${props.companyName} (${props.item.position})`}</h1>
                 {/* <h1 style={style.topText}>{this.props.item.address.charAt(0).toUpperCase() + this.props.item.address.slice(1)}</h1> */}
                 <div style={style.chipRow}>
-                    <Chip icon={<AddToQueueIcon />} label={"Нов преглед"} style={style.chip} onClick={(e) => { e.preventDefault(); newTest()}}/>
+                    <Chip icon={<AddToQueueIcon />} label={"Нов преглед"} style={style.chip} onClick={(e) => {newTest()}}/>
                 </div>
                 <TestModal 
                         render={testModal}
@@ -140,7 +136,8 @@ export default function Employee(props) {
                         numberOfEmployees={1} //in this case it's 1
                         setNumber={() => {}} //empty due to only 1 employee in this case
                         setPrint={printSet}
-                        returnTestModal={returnTestModal}
+                        format={"employee"}
+                        employee={props.item}
                         selectedEmployees={[]}
                     />
             </div>

@@ -11,7 +11,7 @@ const style = {
         height: "94vh",
         top: "6vh",
         background: "#F7F5F1",
-        zIndex: 1
+        zIndex: 1,
     }
 }
 
