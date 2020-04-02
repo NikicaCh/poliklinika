@@ -86,6 +86,15 @@ export default function TestArrangement(props) {
             end: document.getElementById("time-end").value,
         }
         addTestArrangement(props.db, randomId, data, props.setAlert, props.setAlertMessage)
+        const cache = localStorage.getItem("testArrangements");
+        if(cache && JSON.parse(cache.length !== 0)) {
+            let array = JSON.parse(cache);
+            let obj = data
+            obj.id = randomId;
+            array.push(obj)
+                localStorage.setItem("testArrangements", JSON.stringify(array));
+        }
+        props.submit()
         props.handleClose()
         props.getArrangemetns()
     }

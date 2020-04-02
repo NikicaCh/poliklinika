@@ -182,35 +182,41 @@ class Company extends Component  {
     }
     emps = () => { //needed function to pass it to new employee modal, to rerender emps after adding  
         if(this.props.item.employees && this.props.item.employees.length) { //if employees in company
-            this.props.item.employees.map((id) => {
-                getEmployee(this.props.db, id, this.callback)
-            })
+        this.setState({employees: []}, () => {})
+        this.props.item.employees.map((id) => {
+            getEmployee(this.props.db, id, this.callback)
+        })
         }
     }
-    componentWillReceiveProps() {
-        this.setState({employees: []}, () => {
-            this.emps()
-        })
-        //     // if(this.props.item.id) { // SNAPSHOT that listens for changes in THIS company
-        //     //     this.props.db.collection("companies").doc(this.props.item.id).onSnapshot((snap) => {
-        //     //         if(snap.exists) {
-        //     //             this.setState({employees: []}, () => {
-        //     //                 snap.data().employees.map((emp, key) => {
-        //     //                     getEmployee(this.props.db, emp, this.callback)
-        //     //                 })
-        //     //             })
-                        
-        //     //         }
-        //     //     })
-        //     // }
-        // })
+    componentWillReceiveProps(nextProps) {
+        if(this.props.item.id !== nextProps.item.id) {
+            this.setState({employees: []}, () => {
+                    let cache = localStorage.getItem("employees")
+                    if(cache && JSON.parse(cache).length && JSON.parse(cache)[0].companyId === this.props.item.id) {
+                        let array = []
+                        JSON.parse(cache).map((employee) => {
+                            if(employee.companyId === this.props.item.id) {
+                                array.push(employee)
+                            }
+                        })
+                        this.setState({employees: array})
+                    } else {
+                        this.emps()
+                    }
+                })
+        }
+        
     }
    
 
     callback = (id, data) => {
         let obj = data;
         obj.id = id;
-        this.setState({employees:[...this.state.employees, obj]})
+        console.log("CALLBACK", obj)
+        this.setState({employees:[...this.state.employees, obj]}, () => {
+            localStorage.setItem("employees", JSON.stringify(this.state.employees))
+        })
+        
     }
 
     countSelected = (condition) => { //if check or uncheck
@@ -232,19 +238,20 @@ class Company extends Component  {
     }
     
     componentDidMount() {
-        this.emps()
-        // if(this.props.item.id) { // SNAPSHOT that listens for changes in THIS company
-        //     this.props.db.collection("companies").doc(this.props.item.id).onSnapshot((snap) => {
-        //         if(snap.exists) {
-        //             this.setState({employees: []}, () => {
-        //                 snap.data().employees.map((emp, key) => {
-        //                     getEmployee(this.props.db, emp, this.callback)
-        //                 })
-        //             })
-                    
-        //         }
-        //     })
-        // }
+        this.setState({employees: []}, () => {
+            let cache = localStorage.getItem("employees")
+            if(cache && JSON.parse(cache).length && JSON.parse(cache)[0].companyId === this.props.item.id) {
+                let array = []
+                JSON.parse(cache).map((employee) => {
+                    if(employee.companyId === this.props.item.id) {
+                        array.push(employee)
+                    }
+                })
+                this.setState({employees: array})
+            } else {
+                this.emps()
+            }
+        })
 
     }
     // const employeeCallback = (data) =>{

@@ -68,6 +68,16 @@ export default function TodaysArrangements(props) {
     const handleDelete = (id) => {
         props.db.collection("testArrangements").doc(id).delete().then(function() {
             console.log("Document successfully deleted!");
+            const cache = localStorage.getItem("testArrangements");
+            if(cache) {
+                let array = [];
+                JSON.parse(cache).map((test) => {
+                    if(test.id !== id) {
+                        array.push(test)
+                    }
+                })
+                localStorage.setItem("testArrangements", JSON.stringify(array));
+            }
             props.setAlert("success")
             props.setAlertMessage("Успешно избришавте запис.")
         }).catch(function(error) {

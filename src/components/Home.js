@@ -5,13 +5,7 @@ import LeftNav from './LeftNav'
 import Main from './Main'
 import AlertSnack from './AlertSnack'
 import addCompanies from './addCompanies'
-import Axios from 'axios'
 
-
-let dev = "http://localhost:5000"
-let prod = "https://poliklinika.herokuapp.com"
-
-let env = prod;
 
 
 const style= {
@@ -51,16 +45,11 @@ class Home extends React.Component {
         this.addDataToCompaniesJson = this.addDataToCompaniesJson.bind(this)
         this.setRecentSearches = this.setRecentSearches.bind(this)
         this.removeFromCompaniesJson = this.removeFromCompaniesJson.bind(this)
+        this.getRecentSearches = this.getRecentSearches.bind(this)
     }
 
     
     async getCompaniesRequest()  {
-        // Axios.post(`${env}/getCompanies`, {pass: "hello"})
-        // .then(() => {
-        //     Axios.get(`${env}/getData`)
-        //     .then(data => this.setState({companiesData: data.data}))
-        // })
-
         const cache = localStorage.getItem("companies");
         if(cache) {
             this.setState({companiesData: JSON.parse(cache)})
@@ -91,11 +80,6 @@ class Home extends React.Component {
     }
 
     addDataToCompaniesJson = (data) => { // call when adding new company, it will call getCompaniesRequest func when promise resolves
-        // Axios.post(`${env}/updateCompanies`, {body: data})
-        // .then(() => {
-        //     this.getCompaniesRequest()
-        // })
-
         const cache = localStorage.getItem("companies");
         if(cache) {
             let array = this.state.companiesData;
@@ -120,22 +104,37 @@ class Home extends React.Component {
                 })
             })
         }
-        // Axios.post(`${env}/removeCompany`, {body: data})
-        // .then(() => {
-        //     this.getCompaniesRequest()
-        // })
-        // Axios.post(`${env}/remove-recent`, {body: data})
-        // .then(() => {
-        //     Axios.get(`${env}/recent-searches`)
-        //     .then(data => this.setState({recent: data.data}))
-        // })
     }
+    setRecentSearches = (item) => {
+       const cache = localStorage.getItem("recent")
+       let array = []
+       if(cache && cache.length) {
+           JSON.parse(cache).map((company) => {
+               if(company.id != item.id) {
+                    array.push(company)
+               }
+           })
+       } 
+       array.push(item)
+           console.log(item)
+           this.setState({recent: array}, () => {
+            localStorage.setItem("recent", JSON.stringify(this.state.recent))
+           })
+    }
+    getRecentSearches = () => {
+        const cache = localStorage.getItem("recent")
+        if(cache) {
+            this.setState({recent: JSON.parse(cache)})
+        } else {
+            this.setState({recent: []})
+        }
+    }
+    
 
     componentDidMount () {
         window.history.replaceState(this.state, null, "");
         this.getCompaniesRequest()
-        Axios.get(`${env}/recent-searches`)
-        .then(data => this.setState({recent: data.data}))
+        this.getRecentSearches()
     }
 
 
@@ -143,34 +142,19 @@ class Home extends React.Component {
         window.history.pushState(this.state, null, "")
     }
 
-    setRecentSearches = (name, id) => {
-        let data = {}
-        data.name = name;
-        data.id = id;
-        let pos = this.state.recent.map((e) => { return e.id; }).indexOf(id); //check if company is already in list, so don't add it again
-        if(pos === -1) {
-            Axios.post(`${env}/recent-searches`, {body: data})
-            .then(() => {
-                Axios.get(`${env}/recent-searches`)
-                .then(data => this.setState({recent: data.data}))
-            })
-        }
-    }
-    
     
     handleSearchClick = (item) => {
         this.state.companiesData.map((company) => {
             if(company.id === item) {
-                this.setState({company: company, render: "company", companyId: company.id})
-                this.pushToHistoryObject()
-                this.setRecentSearches(company.name, company.id)
+                this.setState({company: company, render: "company", companyId: company.id}, () => {
+                    this.pushToHistoryObject()
+                    this.setRecentSearches(this.state.company)
+                    console.log("ITEEEEEM", this.state.company)
+                })
+                
             }
             
         })
-        // setCompany(item)
-        // setRender("company")
-        // let data = props.selectedEmployees[counter];
-        
     }
 
     closeAlert = () => {
@@ -181,28 +165,8 @@ class Home extends React.Component {
         this.setState({render:"main", company: []})
     }
 
-    handleClick = () => {
+    handleClick = () => { // delete when done ...................................................................................................................
         addCompanies(this.props.db)
-
-        // this.setState({render:"employee"})
-
-        // let body = {
-        //     name: "PERO",
-        //     lastName: "Maksimovski",
-        //     age: 25,
-        //     education: "SSS",
-        //     position: "S"
-        // }
-        // Axios.post("https://poliklinika-server.herokuapp.com/create-pdf", {body})
-        //     .then(() => Axios.get("https://poliklinika-server.herokuapp.com/fetch-pdf", {responseType: "blob"})) //WE CALL THEN SINCE WE HAVE PROMISE.RESOLVE() in server.
-        //     .then((res) => {
-        //         const pdfBlob = new Blob([res.data], {type: "application/pdf"})
-        //         // saveAs(pdfBlob, "newPdf.pdf")
-        //         let url = URL.createObjectURL(pdfBlob);
-        //         window.open(url,'_blank')      
-        //     })
-
-
     }
     setAlert = (value) => {
         this.setState({alert: value})

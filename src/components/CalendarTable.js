@@ -88,15 +88,7 @@ const style = {
         fontSize: ".9vw",
         padding: "1% 2% 0 0",
         margin: ".5%"
-    },
-    dayInfo: {
-        fontSize: ".7vw",
-        marginTop: "15%",
-        textAlign: "center",
-        fontSize: "2vw",
-        fontFamily: 'Pacifico , cursive',
-        color: colors[Math.floor(Math.random() * 6)]
-    },
+    }
 
 }
 
@@ -284,6 +276,7 @@ class CalendarTable extends React.Component {
                 date: new Date()
             }
         ]
+        const cache = localStorage.getItem("testArrangements");
         this.setState({month: []}, () => {
             let first = new Date()
             let todaysDate = new Date(today).getDate()
@@ -301,9 +294,17 @@ class CalendarTable extends React.Component {
                     month[index].date = new Date()
                     month[index].class = "passive"
                 } else {
-                    
                     first.setDate(first.getDate() + 1)
                     month[index].date = new Date(first)
+                    if(cache) {
+                    this.props.tests.map((test) => {
+                            if(new Date(test.date).getDate() == new Date(month[index].date).getDate() && new Date(test.date).getMonth() == new Date(month[index].date).getMonth()) {
+                                let tests = month[index].tests || []
+                                tests.push(test)
+                                month[index].tests = tests
+                            }
+                        })
+                    }
                     if(thisMonth !== new Date(first).getMonth()) {
                         first.setDate(first.getDate())
                         month[index].class = "passive"
@@ -388,6 +389,9 @@ class CalendarTable extends React.Component {
     componentWillReceiveProps() {
         this.sortArrangements()
         this.weekArrangements()
+        let d = new Date()
+        let today = new Date(d) 
+        this.Month(today)
     }
 
     render() {
@@ -468,13 +472,26 @@ class CalendarTable extends React.Component {
                                         <TableCell colSpan={1} style={style.monthTable} align={"center"}>   
                                             {
                                                 this.state.month.map((day) => {
+                                                    let color = colors[Math.floor(Math.random() * 6)]
+                                                    let styles = {
+                                                        fontSize: ".7vw",
+                                                        marginTop: "5%",
+                                                        textAlign: "center",
+                                                        fontSize: "2vw",
+                                                        fontFamily: 'Pacifico , cursive',
+                                                        color: color
+                                                    }
                                                     if(day.class === "passive") {
                                                         return  <div style={style.passive}>
                                                                 </div>
                                                     } else {
-                                                        return  <div style={style.monthDay}>
+                                                        return  <div style={style.monthDay} onClick={() => {this.props.setDate(new Date(day.date))}}>
                                                                     {day.date.getDate()}
-                                                                    <h1 style={style.dayInfo}>{}</h1>
+                                                                    {
+                                                                    (day.tests && day.tests.length )
+                                                                    ? <h1 style={styles} >{day.tests.length}</h1>
+                                                                    :undefined}
+                                                                    
                                                                 </div>
                                                     }
                                                 })

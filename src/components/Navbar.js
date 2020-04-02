@@ -28,14 +28,6 @@ const style = {
         top: "25%",
         opacity: .7
     },
-    bell: {
-        position: "absolute",
-        left: "13%",
-        top: "35%",
-        opacity: .7,
-        cursor: "pointer",
-        color: "#999999",
-    },
     backward: {
         position: "absolute",
         left: "3%",
@@ -129,7 +121,6 @@ export default function Navbar(props) {
             <Button style={style.forward} onClick={() => {
                 window.history.go(1)
             }}><ArrowForwardIosIcon /></Button>
-            <NotificationsIcon style={style.bell} />
             <ExitToAppIcon style={style.signout} onClick={() => { logOut() }}/>
         </div>
     )

@@ -95,7 +95,7 @@ class Calendar extends React.Component {
         this.state = {
             modal: false,
             tests: [],
-            todays: [],
+            todays: new Date(),
             format: "month"
         }
 
@@ -103,29 +103,41 @@ class Calendar extends React.Component {
         this.handleClose = this.handleClose.bind(this)
         this.openModal = this.openModal.bind(this)
         this.setFormat = this.setFormat.bind(this)
+        this.submit = this.submit.bind(this)
+        this.setDate = this.setDate.bind(this)
     }
 
 
     async getArrangemetns() {
-        let empty = []
-        const snapshot = await firebase.firestore().collection('testArrangements').get()
+        const cache = localStorage.getItem("testArrangements");
+        if(cache && JSON.parse(cache.length !== 0)) {
+            this.setState({tests: JSON.parse(cache)})
+        } else {
+            let empty = []
+            let cacheArray = [];
+            const snapshot = await firebase.firestore().collection('testArrangements').get()
+            
+            snapshot.docs.map(doc => {
+                let data = doc.data()
+                data.id = doc.ref.id
+                let yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() -1)
+                if(new Date(data.date) < new Date(yesterday)) { // delete from cache and from db
+                    this.props.db.collection("testArrangements").doc(data.id).delete().then(function() {
+                        console.log("Document successfully deleted!");
+
+                    }).catch(function(error) {
+                        console.error("Error removing document: ", error);
+                    });
+                }
+                cacheArray.push(data)
+                empty.push(data)
+            });
+            this.setState({tests: empty}, () => {
+                localStorage.setItem("testArrangements", JSON.stringify(this.state.tests));
+            })
+        }
         
-        snapshot.docs.map(doc => {
-            console.log("SNAP")
-            let data = doc.data()
-            data.id = doc.ref.id
-            let yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() -1)
-            if(new Date(data.date) < new Date(yesterday)) {
-                this.props.db.collection("testArrangements").doc(data.id).delete().then(function() {
-                    console.log("Document successfully deleted!");
-                }).catch(function(error) {
-                    console.error("Error removing document: ", error);
-                });
-            }
-            empty.push(data)
-        });
-        this.setState({tests: empty})
     }
 
     componentDidMount () {
@@ -150,6 +162,17 @@ class Calendar extends React.Component {
         this.setState({format: value})
     }
 
+    submit = () => {
+        const cache = localStorage.getItem("testArrangements");
+        if(cache && JSON.parse(cache.length !== 0)) {
+            this.setState({tests: JSON.parse(cache)})
+        }
+    }
+
+    setDate = (value) => {
+        this.setState({todays: value})
+    }
+
     render() {
         return (
             <div style={style.calendar}>
@@ -163,8 +186,10 @@ class Calendar extends React.Component {
                         companiesData={this.props.companiesData}
                         setAlert={this.props.setAlert}
                         setAlertMessage={this.props.setAlertMessage} 
-                        getArrangemetns={this.getArrangemetns}/>  
-                    <CalendarTable format={this.state.format} tests={this.state.tests}/>
+                        getArrangemetns={this.getArrangemetns}
+                        tests={this.state.tests}
+                        submit={this.submit}/>  
+                    <CalendarTable format={this.state.format} tests={this.state.tests} setDate={this.setDate}/>
                 </div>
                 <div style={style.left}>
                     <div style={style.button}>
@@ -174,7 +199,7 @@ class Calendar extends React.Component {
                     <div style={style.arrangements}>
                         {
                             this.state.tests.map((test) => {
-                                if(new Date(test.date).getDate() === new Date().getDate()) {
+                                if(new Date(test.date).getDate() === new Date(this.state.todays).getDate()) {
                                     return <TodaysArrangements
                                     db={this.props.db}
                                     item={test}

@@ -147,6 +147,8 @@ class TestModal extends React.Component {
     sendData = (value) => {
         let data = this.props.selectedEmployees[this.state.counter] || this.props.employee
         this.setState({body: {}})
+        let date = new Date()
+        date = `${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()}` // today's date formated
         let obj = {
             name: data.name,
             lastName: data.lastName,
@@ -154,7 +156,9 @@ class TestModal extends React.Component {
             education: data.education,
             position: data.position,
             radio1: this.state.radio1,
-            radio2: this.state.radio2
+            radio2: this.state.radio2,
+            id: document.getElementById("number").value,
+            date: date
         }
         this.setState({body: obj}, () => {
             let body = this.state.body
