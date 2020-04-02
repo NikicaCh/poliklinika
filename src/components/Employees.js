@@ -26,11 +26,11 @@ export default function Employees(props) {
     const newChecked = [...checked];
     if (currentIndex === -1) {
       newChecked.push(value);
-      props.selectEmployee(emp)
+      props.selectEmployee(emp, true)
       props.count(true)
     } else {
       newChecked.splice(currentIndex, 1);
-      props.selectEmployee(newChecked)
+      props.selectEmployee(emp, false)
       props.count(false)
     }
 

@@ -162,15 +162,25 @@ class TestModal extends React.Component {
         }
         this.setState({body: obj}, () => {
             let body = this.state.body
-            Axios.post(`https://poliklinika.herokuapp.com/create-${value}-pdf`, {body})
-            .then(() => Axios.get("https://poliklinika.herokuapp.com/fetch-pdf", {responseType: "blob"})) //WE CALL ".THEN" SINCE WE HAVE PROMISE.RESOLVE() in server.
-            .then((res) => {
-                const pdfBlob = new Blob([res.data], {type: "application/pdf"})
-                // saveAs(pdfBlob, "newPdf.pdf")
-                let url = URL.createObjectURL(pdfBlob);
-                window.open(url,'_blank')
-            
-            })
+            if(value === "employee") {
+                Axios.post(`https://poliklinika.herokuapp.com/create-employee-pdf`, {body})
+                .then(() => Axios.get("https://poliklinika.herokuapp.com/fetch-pdf", {responseType: "blob"})) //WE CALL ".THEN" SINCE WE HAVE PROMISE.RESOLVE() in server.
+                .then((res) => {
+                    const pdfBlob = new Blob([res.data], {type: "application/pdf"})
+                    // saveAs(pdfBlob, "newPdf.pdf")
+                    let url = URL.createObjectURL(pdfBlob);
+                    window.open(url,'_blank')
+                })
+            } else {
+                Axios.post(`https://poliklinika.herokuapp.com/company-pdf`, {body})
+                .then(() => Axios.get("https://poliklinika.herokuapp.com/fetch-pdf", {responseType: "blob"})) //WE CALL ".THEN" SINCE WE HAVE PROMISE.RESOLVE() in server.
+                .then((res) => {
+                    const pdfBlob = new Blob([res.data], {type: "application/pdf"})
+                    // saveAs(pdfBlob, "newPdf.pdf")
+                    let url = URL.createObjectURL(pdfBlob);
+                    window.open(url,'_blank')
+                })
+            }
         })
         
     }

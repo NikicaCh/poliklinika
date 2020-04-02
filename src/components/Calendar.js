@@ -125,7 +125,14 @@ class Calendar extends React.Component {
                 if(new Date(data.date) < new Date(yesterday)) { // delete from cache and from db
                     this.props.db.collection("testArrangements").doc(data.id).delete().then(function() {
                         console.log("Document successfully deleted!");
-
+                        let cache = localStorage.getItem("testArrangements")
+                        let array = []
+                        JSON.parse(cache).map((test) => {
+                            if(test.date >= new Date(yesterday)) {
+                                array.push(test)
+                            }
+                        })
+                        localStorage.setItem("testArrangements", JSON.stringify(array))
                     }).catch(function(error) {
                         console.error("Error removing document: ", error);
                     });

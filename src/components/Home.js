@@ -5,7 +5,7 @@ import LeftNav from './LeftNav'
 import Main from './Main'
 import AlertSnack from './AlertSnack'
 import addCompanies from './addCompanies'
-
+import Axios from 'axios'
 
 
 const style= {
@@ -74,7 +74,6 @@ class Home extends React.Component {
             // render(state);
             if(event.state !== undefined) {
                 this.setState({render: event.state.render})
-                console.log(event.state)
             }
           }.bind(this);
     }
@@ -92,7 +91,7 @@ class Home extends React.Component {
     }
 
     removeFromCompaniesJson = (id) => {
-        const cache = localStorage.getItem("companies");
+        const cache = localStorage.getItem("companies"); //remove from companies 
         if(cache) {
             let array = []
             this.state.companiesData.map((company) => {
@@ -101,6 +100,18 @@ class Home extends React.Component {
                 }
                 this.setState({companiesData: array}, () => {
                     localStorage.setItem("companies", JSON.stringify(this.state.companiesData));
+                })
+            })
+        }
+        const cacheRecent = localStorage.getItem("recent"); //remove from recent
+        if(cacheRecent) {
+            let array = []
+            this.state.recent.map((company) => {
+                if(company.id !== id) {
+                    array.push(company)
+                }
+                this.setState({recent: array}, () => {
+                    localStorage.setItem("recent", JSON.stringify(this.state.recent));
                 })
             })
         }
@@ -116,7 +127,6 @@ class Home extends React.Component {
            })
        } 
        array.push(item)
-           console.log(item)
            this.setState({recent: array}, () => {
             localStorage.setItem("recent", JSON.stringify(this.state.recent))
            })
@@ -135,6 +145,10 @@ class Home extends React.Component {
         window.history.replaceState(this.state, null, "");
         this.getCompaniesRequest()
         this.getRecentSearches()
+        
+        setInterval(() => {
+            Axios.post("https://poliklinika.herokuapp.com/getCompanies")
+        }, 300000)
     }
 
 
@@ -149,7 +163,6 @@ class Home extends React.Component {
                 this.setState({company: company, render: "company", companyId: company.id}, () => {
                     this.pushToHistoryObject()
                     this.setRecentSearches(this.state.company)
-                    console.log("ITEEEEEM", this.state.company)
                 })
                 
             }

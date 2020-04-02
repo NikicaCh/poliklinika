@@ -101,13 +101,12 @@ export default function CompanySettings(props) {
             deleteCompany(props.db, props.companyId)
             props.setAlert("success")
             props.setAlertMessage(`Успешно ја избришавте фирмата ${props.item.name}, и сите податоци поврзани со неа`)
-
+            props.removeFromCompaniesJson(props.companyId)
         } else {
             props.setAlert("error")
             props.setAlertMessage("Внесовте погрешно име")
             setOpen(false)
         }
-        props.removeFromCompaniesJson(props.companyId)
     }
 
     const validate = () => {

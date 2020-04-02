@@ -64,10 +64,23 @@ export default function AddEmployeeModal(props) {
                   employees: firebase.firestore.FieldValue.arrayUnion(newData.id)
               })
               .then((res) => {
+                let cache = localStorage.getItem("companies")
+                props.db.collection('companies').doc(props.companyId).get() // get the company and add it to cache
+                .then((doc) => {
+                  let array = []
+                  JSON.parse(cache).map((company) => {
+                    if(company.id !== newData.companyId) {
+                      array.push(company)
+                    }
+                  })
+                  array.push(doc.data())
+                  localStorage.setItem("companies", JSON.stringify(array))
+                })
                 props.setAlertMessage("Успешно додадовте вработен.")
                 props.setAlert("success")
                 props.setCompany(props.companyId)
                 props.setModal(false)
+                
               })
               .catch((err) => console.log(err))
              

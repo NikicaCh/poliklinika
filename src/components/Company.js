@@ -150,6 +150,7 @@ class Company extends Component  {
         this.returnTestModal = this.returnTestModal.bind(this)
         this.setFadeIn = this.setFadeIn.bind(this)
         this.removeSelected = this.removeSelected.bind(this)
+        this.employees = this.employees.bind(this)
     }
     setModal = () => {
        this.setState({empModal: false})     
@@ -188,22 +189,24 @@ class Company extends Component  {
         })
         }
     }
+
+    employees = () => {
+        let cache = localStorage.getItem("employees")
+        if(cache && JSON.parse(cache).length && JSON.parse(cache)[0].companyId === this.props.item.id) {
+            let array = []
+            JSON.parse(cache).map((employee) => {
+                if(employee.companyId === this.props.item.id) {
+                    array.push(employee)
+                }
+            })
+            this.setState({employees: array})
+        } else {
+            this.emps()
+        }
+    }
     componentWillReceiveProps(nextProps) {
         if(this.props.item.id !== nextProps.item.id) {
-            this.setState({employees: []}, () => {
-                    let cache = localStorage.getItem("employees")
-                    if(cache && JSON.parse(cache).length && JSON.parse(cache)[0].companyId === this.props.item.id) {
-                        let array = []
-                        JSON.parse(cache).map((employee) => {
-                            if(employee.companyId === this.props.item.id) {
-                                array.push(employee)
-                            }
-                        })
-                        this.setState({employees: array})
-                    } else {
-                        this.emps()
-                    }
-                })
+             this.employees()   
         }
         
     }
@@ -212,7 +215,6 @@ class Company extends Component  {
     callback = (id, data) => {
         let obj = data;
         obj.id = id;
-        console.log("CALLBACK", obj)
         this.setState({employees:[...this.state.employees, obj]}, () => {
             localStorage.setItem("employees", JSON.stringify(this.state.employees))
         })
@@ -233,25 +235,20 @@ class Company extends Component  {
         }
     }
 
-    selectEmployee = (emp) => {
-        this.setState({selectedEmployees: [...this.state.selectedEmployees, emp]})
+    selectEmployee = (emp, check) => {
+        if(check) {
+            this.setState({selectedEmployees: [...this.state.selectedEmployees, emp]})
+        } else {
+            let array = []
+            this.state.selectedEmployees.map((employee) => {
+                if(employee.id !== emp.id) array.push(employee)
+            })
+            this.setState({selectedEmployees: array})
+        }
     }
     
     componentDidMount() {
-        this.setState({employees: []}, () => {
-            let cache = localStorage.getItem("employees")
-            if(cache && JSON.parse(cache).length && JSON.parse(cache)[0].companyId === this.props.item.id) {
-                let array = []
-                JSON.parse(cache).map((employee) => {
-                    if(employee.companyId === this.props.item.id) {
-                        array.push(employee)
-                    }
-                })
-                this.setState({employees: array})
-            } else {
-                this.emps()
-            }
-        })
+        this.employees()
 
     }
     // const employeeCallback = (data) =>{
