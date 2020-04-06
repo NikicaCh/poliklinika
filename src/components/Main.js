@@ -39,7 +39,8 @@ export default function Main(props) {
                 setRender={props.setRender}
                 setEmployee={props.setEmployee}
                 setCompany={props.setCompany}
-                removeFromCompaniesJson={props.removeFromCompaniesJson}/>
+                removeFromCompaniesJson={props.removeFromCompaniesJson}
+                getCompaniesRequest={props.getCompaniesRequest}/>
             : undefined
             }
             {

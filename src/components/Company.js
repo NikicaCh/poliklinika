@@ -151,6 +151,8 @@ class Company extends Component  {
         this.setFadeIn = this.setFadeIn.bind(this)
         this.removeSelected = this.removeSelected.bind(this)
         this.employees = this.employees.bind(this)
+        this.addEmployee = this.addEmployee.bind(this)
+        this.addTest = this.addTest.bind(this)
     }
     setModal = () => {
        this.setState({empModal: false})     
@@ -249,7 +251,6 @@ class Company extends Component  {
     
     componentDidMount() {
         this.employees()
-
     }
     // const employeeCallback = (data) =>{
     //     setEmployees([...employees, data])
@@ -267,6 +268,26 @@ class Company extends Component  {
     returnTestModal = () => {
         this.setState({testModal: !this.state.testModal}
     )}
+
+    addEmployee = (emp) => {
+        this.setState({employees: [...this.state.employees, emp]})
+    }
+
+    addTest = (id, empId) => {
+        let cache = localStorage.getItem("employees")
+        let array = []
+        JSON.parse(cache).forEach((employee) => {
+            if(employee.id !== empId) {
+                array.push(employee)
+            }
+        })
+        this.props.db.collection("employees").doc(empId).get()
+        .then((doc) => {
+            array.push(doc.data())
+            localStorage.setItem("employees", JSON.stringify(array))
+        }) 
+        this.props.setCompany(this.props.item.id)
+    }
 
     render() {
         let items;
@@ -293,7 +314,9 @@ class Company extends Component  {
                         company={this.props.item}
                         companyId={this.props.companyId}
                         employees={this.props.item.employees}
-                        setCompany={this.props.setCompany}/>
+                        setCompany={this.props.setCompany}
+                        getCompaniesRequest={this.props.getCompaniesRequest}
+                        addEmployee={this.addEmployee}/>
                     <TestModal 
                         render={this.state.testModal}
                         db={this.props.db}
@@ -306,6 +329,7 @@ class Company extends Component  {
                         setPrint={this.setPrint}
                         returnTestModal={this.returnTestModal}
                         selectedEmployees={this.state.selectedEmployees}
+                        addTest={this.addTest}
                     />
                     <TextField
                     style={style.empSearch}
@@ -374,7 +398,13 @@ class Company extends Component  {
                    <StateNav style={style.stateNav} setSwitch={this.setSwitch} navs={this.state.navs}/>
                     {
                         (this.state.switchState === "employees") 
-                        ? <Employees items={items || this.state.employees} count={this.countSelected} selectEmployee={this.selectEmployee} setRender={this.props.setRender} setEmployee={this.props.setEmployee}/> 
+                        ? <Employees
+                            items={items}
+                            count={this.countSelected}
+                            selectEmployee={this.selectEmployee}
+                            setRender={this.props.setRender}
+                            setEmployee={this.props.setEmployee}
+                            addTest={this.addTest}/> 
                         : undefined
                     }
                     {

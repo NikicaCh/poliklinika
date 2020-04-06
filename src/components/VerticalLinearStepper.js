@@ -5,8 +5,9 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import StepContent from '@material-ui/core/StepContent';
 import Button from '@material-ui/core/Button';
-import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Axios from 'axios'
 
 const style = {
   root: {
@@ -18,6 +19,14 @@ const style = {
   },
   resetContainer: {
     padding: "1%",
+  },
+  button: {
+    marginTop: "1%",
+    marginRight: "1%",
+  },
+  info: {
+    marginLeft: "10%",
+    marginBottom: "5%"
   }
 }
 
@@ -46,50 +55,19 @@ class VerticalLinearStepper extends React.Component {
         super(props)
 
         this.state = {
-            activeStep: 0,
-            steps: [],
+            activeStep: this.props.items.length-1,
+            steps: this.props.items,
         }
 
-        this.retrieveTests = this.retrieveTests.bind(this)
         this.setActive = this.setActive.bind(this)
         this.handleReset = this.handleReset.bind(this)
+        this.print = this.print.bind(this)
+        this.handleDelete = this.handleDelete.bind(this)
     }
 
 
 
-    retrieveTests = () => {
-        this.setState({steps: []})
-        this.props.items.map((item) => {
-            let testRef = this.props.db.collection('tests').doc(item);
-            let getDoc = testRef.get()
-            .then(doc => {
-                if (!doc.exists) {
-                console.log('No such document!');
-                } else {
-                    this.setState({steps: [...this.state.steps, doc.data()]})
-                }
-                let dates = []
-                this.state.steps.reverse().map((step) => {
-                if(dates.indexOf(step.date) !== -1 || dates.indexOf(step.B) !== -1) { // test with the same date already excists, so remove the rest
-                  this.props.db.collection('tests').doc(step.id).delete().then(function() {
-                    console.log("Document successfully deleted!");
-                    }).catch(function(error) {
-                        console.error("Error removing document: ", error);
-                    });
-                } else {
-                  dates.push(step.date)
-                }
-        })
-            })
-            .catch(err => {
-                console.log('Error getting document', err);
-            });
-            })
-    }
     
-    componentDidMount() {
-        this.retrieveTests()
-      }
 //   handleNext = () => {
 //     setActiveStep(prevActiveStep => prevActiveStep + 1);
 //   };
@@ -106,6 +84,48 @@ class VerticalLinearStepper extends React.Component {
       console.log("CALLING", value)
       this.setState({setActiveStep: value})
   }
+  print = () => {
+    let body = {
+      name: this.props.employee.name,
+      lastName: this.props.employee.lastName,
+      age: this.props.employee.age,
+      education: this.props.employee.education,
+      position: this.props.employee.position,
+      radio1: this.props.items[this.state.activeStep].radio1,
+      radio2: this.props.items[this.state.activeStep].radio2,
+      id: this.props.items[this.state.activeStep].id2 || this.props.items[this.state.activeStep].Z,
+      date: this.props.items[this.state.activeStep].date || this.props.items[this.state.activeStep].B
+    }
+      Axios.post(`https://poliklinika.herokuapp.com/create-employee-pdf`, {body})
+      .then(() => Axios.get("https://poliklinika.herokuapp.com/fetch-pdf", {responseType: "blob"})) //WE CALL ".THEN" SINCE WE HAVE PROMISE.RESOLVE() in server.
+      .then((res) => {
+          const pdfBlob = new Blob([res.data], {type: "application/pdf"})
+          // saveAs(pdfBlob, "newPdf.pdf")
+          let url = URL.createObjectURL(pdfBlob);
+          window.open(url,'_blank')
+      })
+  };
+
+  handleDelete = () => {
+    let id = this.props.items[this.state.activeStep].id
+    this.props.db.collection("tests").doc(id).delete()
+    .then(() => {
+      let array = []
+      this.props.items.map((step) => {
+        if(step.id !== id) {
+          array.push(step)
+        }
+      })
+      this.setState({steps: array})
+      this.props.setAlert("info")
+      this.props.setAlertMessage("Успешно избришавте систематски.")
+    })
+    .catch((err) => {
+      this.props.setAlert("error")
+      this.props.setAlertMessage(err)
+    })
+  }
+
 
   render() {
     return (
@@ -119,6 +139,22 @@ class VerticalLinearStepper extends React.Component {
                     getStepContent(label.AB || label.radio1)
                   }</Typography>
                   <div style={style.actionsContainer}>
+                    <div>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={this.print}
+                        style={style.button}
+                      > ПРИНТАЈ
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={this.handleDelete}
+                        style={style.button}
+                      > <DeleteIcon /> 
+                      </Button>
+                    </div>
                   </div>
                 </StepContent>
               </Step>

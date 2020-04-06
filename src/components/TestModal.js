@@ -142,6 +142,7 @@ class TestModal extends React.Component {
             this.props.setAlert,
             this.props.setAlertMessage,
             )
+        this.props.addTest(data.id, empId)
     }
 
     sendData = (value) => {

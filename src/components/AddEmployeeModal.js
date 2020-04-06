@@ -24,7 +24,7 @@ export default function AddEmployeeModal(props) {
   };
   
   const handleSubmit = () => {
-    const removeFalsy = (obj) => {
+    const removeFalsy = (obj) => { //function to remove empty strings from object
       let newObj = {};
       Object.keys(obj).forEach((prop) => {
         if (obj[prop]) { newObj[prop] = obj[prop]; }
@@ -63,27 +63,26 @@ export default function AddEmployeeModal(props) {
               company.update({
                   employees: firebase.firestore.FieldValue.arrayUnion(newData.id)
               })
-              .then((res) => {
-                let cache = localStorage.getItem("companies")
-                props.db.collection('companies').doc(props.companyId).get() // get the company and add it to cache
-                .then((doc) => {
-                  let array = []
-                  JSON.parse(cache).map((company) => {
-                    if(company.id !== newData.companyId) {
-                      array.push(company)
-                    }
-                  })
-                  array.push(doc.data())
-                  localStorage.setItem("companies", JSON.stringify(array))
-                })
-                props.setAlertMessage("Успешно додадовте вработен.")
-                props.setAlert("success")
-                props.setCompany(props.companyId)
-                props.setModal(false)
-                
+              props.setCompany(props.companyId)
+              props.setAlertMessage("Успешно додадовте вработен.")
+              props.setAlert("success")
+              props.setModal(false)            
+              let cache = localStorage.getItem("companies")
+              let array = []
+              JSON.parse(cache).forEach((company) => {
+                if(company.id !== props.companyId) {
+                  array.push(company)
+                }
               })
-              .catch((err) => console.log(err))
-             
+              props.db.collection("companies").doc(props.companyId).get()
+              .then( doc => {
+                array.push(doc.data())
+                localStorage.setItem("companies", JSON.stringify(array))
+                props.getCompaniesRequest()
+                props.addEmployee(newData)
+                props.setCompany(props.companyId)
+              })
+              
           }
       })
       .catch(function(error) {

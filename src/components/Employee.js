@@ -96,97 +96,135 @@ const style={
 }
 
 
-export default function Employee(props) {
+class Employee extends React.Component {
 
-    const [testModal, setTestModal] = useState(false)
-    const [print, setPrint] = useState(false)
-    const [switchState, setSwitchState] = useState("employees")
-    const navs = ["Времеплов", "Подесувања"]
+    constructor(props) {
+        super(props)
 
-    const setTest = () => {
-        setTestModal(!testModal)
+        this.state = {
+            testModal: false,
+            print: false,
+            switchState: "employees",
+            navs: ["Времеплов", "Подесувања"],
+            emploee: {},
+            tests: [],
+        }
+
+        this.setTest = this.setTest.bind(this)
+        this.printSet = this.printSet.bind(this)
+        this.newTest = this.newTest.bind(this)
+        this.setSwitch = this.setSwitch.bind(this)
+        this.retrieveTests = this.retrieveTests.bind(this)
+    }
+    
+
+    componentDidMount() {
+        this.props.db.collection("employees").doc(this.props.item).get()
+        .then((doc) => {
+            if(doc.exists) {
+                this.setState({emploee: doc.data()}, () => {
+                    this.retrieveTests()
+                })
+            }
+        })
+
+
+    }
+    retrieveTests = () => {
+        let arrayOfTests = this.state.emploee.tests
+        arrayOfTests.map((test) => {
+            let testRef = this.props.db.collection('tests').doc(test);
+            let getDoc = testRef.get()
+            .then(doc => {
+                if (!doc.exists) {
+                console.log('No such document!');
+                } else {
+                    let date = doc.data().date || doc.data().B
+                    let array = []
+                    this.state.tests.forEach((oldTest) => {
+                        let oldDate = oldTest.date || oldTest.B
+                        if(oldDate !== date) {
+                            array.push(oldTest)
+                        }
+                    })
+                    array.push(doc.data())
+                    this.setState({tests: array})
+                }
+            })
+            .catch(err => {
+                console.log('Error getting document', err);
+            });
+            })
+    }
+    setTest = () => {
+        this.setState({testModal: !this.state.testModal})
     }
 
-    const printSet = () => {
-        setPrint(!print)
+    printSet = () => {
+        this.setState({print: !this.state.print})
     }
-    const newTest = () => {
-        setTestModal(true)
+    newTest = () => {
+        this.setState({testModal: true})
     }
 
-    const setSwitch = (value) => {
-        console.log(value)
-        setSwitchState(value)
+    setSwitch = (value) => {
+        this.setState({switchState: value})
     }
-    return( 
-        <div style={style.employee}>
-            <div style={style.top}>
-                <h1 style={style.name}>{`${props.item.name} ${props.item.lastName}`}</h1>
-                <h1 style={style.topText}>{`${props.companyName} (${props.item.position})`}</h1>
-                {/* <h1 style={style.topText}>{this.props.item.address.charAt(0).toUpperCase() + this.props.item.address.slice(1)}</h1> */}
-                <div style={style.chipRow}>
-                    <Chip icon={<AddToQueueIcon />} label={"Нов преглед"} style={style.chip} onClick={(e) => {newTest()}}/>
+    render() {
+        return( 
+            <div style={style.employee}>
+                <div style={style.top}>
+                    <h1 style={style.name}>{`${this.state.emploee.name} ${this.state.emploee.lastName}`}</h1>
+                    <h1 style={style.topText}>{`${this.props.companyName} (${this.state.emploee.position})`}</h1>
+                    {/* <h1 style={style.topText}>{this.state.emploee.address.charAt(0).toUpperCase() + this.state.emploee.address.slice(1)}</h1> */}
                 </div>
-                <TestModal 
-                        render={testModal}
-                        db={props.db}
-                        setModal={setTest}
-                        setAlert={props.setAlert}
-                        setAlertMessage={props.setAlertMessage}
-                        numberOfEmployees={1} //in this case it's 1
-                        setNumber={() => {}} //empty due to only 1 employee in this case
-                        setPrint={printSet}
-                        format={"employee"}
-                        employee={props.item}
-                        selectedEmployees={[]}
-                    />
+                <div style={style.generals}>
+                        <Paper>
+                        <Tabs
+                            value={0}
+                            indicatorColor="primary"
+                            textColor="primary"
+                            variant="fullWidth"
+                            >>
+                            <Tab label="Генералии" />
+                        </Tabs>
+                        </Paper>
+                        <Generals item={this.state.emploee.name} description={"Име"}/>
+                        <Generals item={this.state.emploee.lastName} description={"Презиме"}/>
+                        <Generals item={this.state.emploee.address} description={"Адреса"}/>
+                        <Generals item={this.state.emploee.age} description={"Година на раѓање"}/>
+                        <Generals item={this.props.companyName} description={"Фирма"}/>
+                        <Generals item={this.state.emploee.position} description={"Позиција"}/>
+                    </div>
+                    <div style={style.main}>
+                       <StateNav setSwitch={this.setSwitch} navs={this.state.navs}/>
+                        {
+                            (this.state.switchState === "timeline")
+                            ? <EmployeeSettings
+                                item={this.state.emploee}
+                                db={this.props.db}
+                                setEmployee={this.props.setEmployee}
+                                setAlert={this.props.setAlert}
+                                setAlertMessage={this.props.setAlertMessage} />
+                            : undefined
+                        }
+                        {
+                            (this.state.switchState === "employees")
+                            ? 
+                            <div>
+                                {
+                                    (this.state.emploee.tests && this.state.tests.length)
+                                    ?  <VerticalLinearStepper items={this.state.tests} employee={this.state.emploee} db={this.props.db} setAlert={this.props.setAlert} setAlertMessage={this.props.setAlertMessage}/>
+                                    : <h1 style={style.noTests}>Нема систематски прегледи за овој вработен.</h1>
+                                }
+                            </div>
+                            : undefined
+                        }
+                   </div>
             </div>
-            <div style={style.generals}>
-                    <Paper>
-                    <Tabs
-                        value={0}
-                        indicatorColor="primary"
-                        textColor="primary"
-                        variant="fullWidth"
-                        >>
-                        <Tab label="Генералии" />
-                    </Tabs>
-                    </Paper>
-                    <Generals item={props.item.name} description={"Име"}/>
-                    <Generals item={props.item.lastName} description={"Презиме"}/>
-                    <Generals item={props.item.address} description={"Адреса"}/>
-                    <Generals item={props.item.age} description={"Година на раѓање"}/>
-                    <Generals item={props.companyName} description={"Фирма"}/>
-                    <Generals item={props.item.position} description={"Позиција"}/>
-                </div>
-                <div style={style.main}>
-                   <StateNav setSwitch={setSwitch} navs={navs}/>
-                    {
-                        (switchState === "timeline")
-                        ? <EmployeeSettings
-                            item={props.item}
-                            db={props.db}
-                            setEmployee={props.setEmployee}
-                            setAlert={props.setAlert}
-                            setAlertMessage={props.setAlertMessage} />
-                        : undefined
-                    }
-                    {
-                        (switchState === "employees")
-                        ? 
-                        <div>
-                            {
-                                (props.item.tests && props.item.tests.length)
-                                ?  <VerticalLinearStepper items={props.item.tests} db={props.db}/>
-                                : <h1 style={style.noTests}>Нема систематски прегледи за овој вработен.</h1>
-                            }
-
-                                
-
-                        </div>
-                        : undefined
-                    }
-               </div>
-        </div>
-    )
+        )
+    }
+    
 }
+
+export default Employee

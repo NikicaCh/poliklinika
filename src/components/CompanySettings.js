@@ -7,7 +7,6 @@ import deepPurple from '@material-ui/core/colors/deepPurple'
 import red from '@material-ui/core/colors/red';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { deleteCompany, deleteEmployee, deleteTest } from './Fetch';
@@ -102,6 +101,7 @@ export default function CompanySettings(props) {
             props.setAlert("success")
             props.setAlertMessage(`Успешно ја избришавте фирмата ${props.item.name}, и сите податоци поврзани со неа`)
             props.removeFromCompaniesJson(props.companyId)
+            props.setCompany("home")
         } else {
             props.setAlert("error")
             props.setAlertMessage("Внесовте погрешно име")

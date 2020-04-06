@@ -128,7 +128,7 @@ class Calendar extends React.Component {
                         let cache = localStorage.getItem("testArrangements")
                         let array = []
                         JSON.parse(cache).map((test) => {
-                            if(test.date >= new Date(yesterday)) {
+                            if(test.id != data.id) {
                                 array.push(test)
                             }
                         })

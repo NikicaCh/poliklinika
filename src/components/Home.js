@@ -145,7 +145,9 @@ class Home extends React.Component {
         window.history.replaceState(this.state, null, "");
         this.getCompaniesRequest()
         this.getRecentSearches()
-        
+        setTimeout(() => {
+            Axios.post("https://poliklinika.herokuapp.com/getCompanies")
+        },1000)
         setInterval(() => {
             Axios.post("https://poliklinika.herokuapp.com/getCompanies")
         }, 300000)
@@ -168,6 +170,9 @@ class Home extends React.Component {
             }
             
         })
+        if(item === "home") {
+            this.setState({render: "main"})
+        }
     }
 
     closeAlert = () => {
@@ -221,7 +226,8 @@ class Home extends React.Component {
                     employee={this.state.employee}
                     companiesData={this.state.companiesData}
                     setCompany={this.handleSearchClick}
-                    removeFromCompaniesJson={this.removeFromCompaniesJson}/>
+                    removeFromCompaniesJson={this.removeFromCompaniesJson}
+                    getCompaniesRequest={this.getCompaniesRequest}/>
             </div>
         )
     }

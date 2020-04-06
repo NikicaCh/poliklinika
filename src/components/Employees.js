@@ -46,7 +46,7 @@ export default function Employees(props) {
         return (
           <ListItem button onClick={() => {
             props.setRender("employee"); 
-            props.setEmployee(emp)}}>
+            props.setEmployee(emp.id)}}>
             <ListItemAvatar>
               <Avatar
                 // alt={`Avatar n°${value + 1}`}
