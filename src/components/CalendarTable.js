@@ -278,7 +278,7 @@ class CalendarTable extends React.Component {
         ]
         const cache = localStorage.getItem("testArrangements");
         this.setState({month: []}, () => {
-            let first = new Date()
+            let first = new Date(this.state.date)
             let todaysDate = new Date(today).getDate()
             // console.log("FIRST", first)
             let thisMonth = new Date(today).getMonth()
